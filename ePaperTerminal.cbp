@@ -24,10 +24,12 @@
 			<Add option="-Wall" />
 			<Add option="-mmcu=atxmega256a3u" />
 			<Add option="-DF_CPU=29491200UL" />
-			<Add directory="/home/chrak/repositories/ePaperTerminal/" />
+			<Add directory="../ePaperTerminal" />
 			<Add directory="../communication" />
 			<Add directory="../spi" />
 			<Add directory="../e-paper42" />
+			<Add directory="../twiMaster" />
+			<Add directory="../sensirion" />
 		</Compiler>
 		<Linker>
 			<Add option="-mmcu=atxmega256a3u" />
@@ -72,17 +74,31 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="../e-paper42/fonts.h" />
+		<Unit filename="../sensirion/sensirion_protocol.cpp" />
+		<Unit filename="../sensirion/sensirion_protocol.h" />
 		<Unit filename="../spi/Operators.cpp" />
 		<Unit filename="../spi/Operators.h" />
 		<Unit filename="../spi/SPI.cpp" />
 		<Unit filename="../spi/SPI.h" />
+		<Unit filename="../twiMaster/twi_master_driver.cpp" />
+		<Unit filename="../twiMaster/twi_master_driver.h" />
+		<Unit filename="ComReceiver.cpp" />
+		<Unit filename="ComReceiver.h" />
+		<Unit filename="CommandFunctions.cpp" />
+		<Unit filename="CommandFunctions.h" />
+		<Unit filename="External.h" />
+		<Unit filename="Globals.cpp" />
+		<Unit filename="MyTimer.cpp" />
+		<Unit filename="MyTimer.h" />
 		<Unit filename="ePaper42hardware.h" />
+		<Unit filename="ePaperTerminal.h" />
 		<Unit filename="imagedata.cpp" />
 		<Unit filename="imagedata.h" />
 		<Unit filename="ledHardware.h" />
 		<Unit filename="main.cpp">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="myconstants.h" />
 		<Unit filename="spiHardware.h" />
 		<Unit filename="uartHardware.h" />
 		<Extensions>

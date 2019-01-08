@@ -3,13 +3,6 @@
 
 #include <avr/io.h>
 
-/*
-#define RST_PIN         8
-#define DC_PIN          9
-#define CS_PIN          10
-#define BUSY_PIN        7
-*/
-
 #define RST_PORT        PORTE
 #define DC_PORT         RST_PORT
 #define CS_PORT         RST_PORT

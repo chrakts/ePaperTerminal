@@ -6,7 +6,7 @@
 #include "imagedata.h"
 #include "epdpaint.h"
 #include "ledHardware.h"
-#include "Serial.h"
+#include "External.h"
 
 #define COLORED     0
 #define UNCOLORED   1
@@ -32,9 +32,8 @@ void setup() {
   init_clock(SYSCLK, PLL);
 	PMIC_CTRL = PMIC_LOLVLEX_bm | PMIC_HILVLEN_bm | PMIC_MEDLVLEN_bm;
   sei();
-  Serial debug(0);
-  debug.open(Serial::BAUD_57600,F_CPU);
-  debug.print("Hallo Display\n");
+  cmulti.open(Serial::BAUD_57600,F_CPU);
+  cmulti.print("Hallo Display\n");
   LEDROT_ON;
   Epd epd;
 
@@ -42,7 +41,7 @@ void setup() {
     //Serial.print("e-Paper init failed");
     return;
   }
-  debug.print("EPD init\n");
+  cmulti.print("EPD init\n");
 
   /* This clears the SRAM of the e-paper display */
   epd.ClearFrame();
@@ -57,9 +56,9 @@ void setup() {
   Paint paint(image, 400, 300);    //width should be the multiple of 8
 
   paint.Clear(UNCOLORED);
-  debug.print("Display Cleared\n");
+  cmulti.print("Display Cleared\n");
   paint.DrawStringAt(0, 0, "e-Paper Demo", &Font24, COLORED);
-  debug.print("EPD partial\n");
+  cmulti.print("EPD partial\n");
 
 //  paint.Clear(COLORED);
   paint.DrawStringAt(48, 48, "Hello world", &Font24, COLORED);
@@ -73,7 +72,7 @@ void setup() {
   paint.DrawLine(50, 50, 90, 100, COLORED);
   paint.DrawLine(40, 0, 0, 50, COLORED);
 //  epd.SetPartialWindow(paint.GetImage(), 72, 120, paint.GetWidth(), paint.GetHeight());
-  debug.print("EPD partial2\n");
+  cmulti.print("EPD partial2\n");
 
 //  paint.SetWidth(100);
 //  paint.SetHeight(100);
@@ -91,20 +90,20 @@ void setup() {
 //  paint.Clear(UNCOLORED);
 //  paint.DrawFilledCircle(32, 32, 30, COLORED);
 //  epd.SetPartialWindow(paint.GetImage(), 400, 300, paint.GetWidth(), paint.GetHeight());
-  debug.print("EPD partial3\n");
+  cmulti.print("EPD partial3\n");
 
   /* This displays the data from the SRAM in e-Paper module */
   epd.SetPartialWindow(paint.GetImage(), 0, 0, paint.GetWidth(), paint.GetHeight());
   epd.DisplayFrame();
-  debug.print("Display Frame\n");
+  cmulti.print("Display Frame\n");
 
   /* This displays an image */
   paint.Clear(UNCOLORED);
   paint.DrawPicture(imageButterfly,IMAGEBUTTERFLY_SIZE);
-  debug.print("Transfer Picture\n");
+  cmulti.print("Transfer Picture\n");
   epd.SetPartialWindow(paint.GetImage(), 0, 0, paint.GetWidth(), paint.GetHeight());
   epd.DisplayFrame();
-  debug.print("Display Picture\n");
+  cmulti.print("Display Picture\n");
   /* Deep sleep */
   epd.Sleep();
 }
@@ -114,7 +113,10 @@ int main()
   setup();
   // put your main code here, to run repeatedly:
   while(1)
-    ;
+  {
+    comStateMachine(&cmulti);
+    doJob(&cmulti);
+  }
 }
 
 void init_clock(int sysclk, int pll)
