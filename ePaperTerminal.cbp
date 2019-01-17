@@ -13,16 +13,32 @@
 				<Option type="5" />
 				<Option compiler="avr-gcc" />
 				<Compiler>
-					<Add option="-Os" />
+					<Add option="-O3" />
+					<Add option="-Wall" />
+					<Add option="-std=c++14" />
 				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add library="libm" />
+					<Add library="libprintf_flt" />
+				</Linker>
 			</Target>
 			<Environment>
 				<Variable name="MCU" value="atxmega256a3u" />
 			</Environment>
 		</Build>
 		<Compiler>
-			<Add option="-Wall" />
+			<Add option="-Os" />
+			<Add option="-std=c++14" />
 			<Add option="-mmcu=atxmega256a3u" />
+			<Add option="-c -fpermissive" />
+			<Add option="-Wno-enum-compare" />
+			<Add option="-MD -MP -MF" />
+			<Add option="-ffunction-sections" />
+			<Add option="-fdata-sections" />
+			<Add option="-fpack-struct" />
+			<Add option="-funsigned-char" />
+			<Add option="-funsigned-bitfields" />
 			<Add option="-DF_CPU=29491200UL" />
 			<Add directory="../ePaperTerminal" />
 			<Add directory="../communication" />
@@ -32,8 +48,13 @@
 			<Add directory="../sensirion" />
 		</Compiler>
 		<Linker>
+			<Add option="-s" />
 			<Add option="-mmcu=atxmega256a3u" />
 			<Add option="-Wl,-Map=$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).map,--cref" />
+			<Add option="-Wl,-u,vfprintf" />
+			<Add option="-Wl,--gc-sections" />
+			<Add library="libprintf_flt" />
+			<Add library="libm" />
 		</Linker>
 		<ExtraCommands>
 			<Add after="avr-size $(TARGET_OUTPUT_FILE)" />

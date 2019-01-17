@@ -8,7 +8,7 @@
 
 #include "ePaperTerminal.h"
 
-const char *Node = "H1";
+const char *Node = "IP";
 
 
 const char *fehler_text[]={"memory errors","parameter error","unknown job","no transmission","command not allowed","CRC error","no active sensor"};
@@ -17,6 +17,7 @@ char Compilation_Date[] = __DATE__;
 char Compilation_Time[] = __TIME__;
 
 char quelle_KNET[3]="";
+uint8_t isBroadcast = false;
 
 
 volatile TIMER MyTimers[MYTIMER_NUM]= {	{TM_START,RESTART_YES,50,0,nextSensorStatus},
@@ -28,6 +29,8 @@ volatile TIMER MyTimers[MYTIMER_NUM]= {	{TM_START,RESTART_YES,50,0,nextSensorSta
 
 
 float fTemperatur=-999,fHumidity=-999,fDewPoint=-999,fAbsHumitdity=-999;
+
+double fExternalTemperature = -99.0;
 
 volatile uint8_t statusSensoren = KLIMASENSOR;
 volatile uint8_t statusReport = TEMPREPORT;
@@ -44,12 +47,12 @@ uint16_t measureRate_100ms=10;
 //extern uint8_t averageRate=32;
 
 /* Global variables for TWI */
-TWI_Master_t twiC_Master;    /*!< TWI master module. */
-TWI_Master_t twiE_Master;    /*!< TWI master module. */
+TWI_MasterDriver_t twiC_Master;    /*!< TWI master module. */
+TWI_MasterDriver_t twiE_Master;    /*!< TWI master module. */
 
 
 volatile bool nextSendReady=false;
 
-Communication cmulti(1,Node,5);
+Communication cmulti(0,Node,5);
 
 

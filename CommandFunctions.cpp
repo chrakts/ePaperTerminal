@@ -4,10 +4,10 @@
  * Created: 26.04.2017 14:54:45
  *  Author: a16007
  */
-
-#include "CommandFunctions.h"
 #include "External.h"
+#include "CommandFunctions.h"
 #include "CRC_Calc.h"
+#include "ledHardware.h"
 
 void jobGotCRCError(Communication *output, char function,char address,char job, void * pMem)
 {
@@ -32,6 +32,21 @@ void jobGetCAbsHumiditySensor(Communication *output, char function,char address,
 void jobGetCDewPointSensor(Communication *output, char function,char address,char job, void * pMem)
 {
 	output->sendAnswerDouble(quelle_KNET,function,address,job,(double)fDewPoint,true);
+}
+
+void jobGotExternalTemperature(Communication *output, char function,char address,char job, void * pMem)
+{
+// #1aD BR C1 S C1 t F17.409996<0355
+char answer[30];
+	if( isBroadcast==true)
+	{
+		double *pointer;
+    pointer = (double*) pMem;
+    fExternalTemperature = pointer[0];
+//    output->sendAnswerDouble(quelle_KNET,function,address,job,(double)455.345,true);
+    sprintf(answer,"NT:%f",(double)fExternalTemperature);
+    output->sendAnswer(answer,(char*)"BR",function,address,job,true);
+	}
 }
 
 void jobSetSecurityKey(Communication *output, char function,char address,char job, void * pMem)

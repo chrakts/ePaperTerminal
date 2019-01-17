@@ -2,6 +2,7 @@
  */
 
 //#include <SPI.h>
+#include "ePaperTerminal.h"
 #include "epd4in2.h"
 #include "imagedata.h"
 #include "epdpaint.h"
@@ -19,22 +20,37 @@ enum{QUARZ,CLK2M,CLK32M};
 void init_clock(int sysclk, int pll);
 
 
-void setup() {
-  // put your setup code here, to run once:
-  //Serial.begin(9600);
+void setup()
+{
   LEDROTSETUP;
-  PORTA.DIRSET = PIN4_bm | PIN7_bm;
+  PORTA.DIRSET = 0xff; //PIN4_bm | PIN7_bm;
   PORTB.DIRSET = PIN2_bm | PIN5_bm | PIN7_bm;
   PORTC.DIRSET = PIN1_bm | PIN3_bm | PIN4_bm | PIN5_bm | PIN7_bm;
   PORTD.DIRSET = PIN3_bm | PIN4_bm | PIN5_bm | PIN7_bm;
   PORTE.DIRSET = PIN1_bm | PIN4_bm | PIN5_bm | PIN7_bm;
   PORTF.DIRSET = PIN3_bm | PIN4_bm | PIN5_bm;
+  AUX1_ON;
+  AUX2_ON;
+  AUX3_ON;
+  AUX4_ON;
   init_clock(SYSCLK, PLL);
+  for( uint8_t i=0;i<3;i++)
+  {
+    LEDROT_ON;
+    _delay_ms(300);
+    LEDROT_OFF;
+    _delay_ms(300);
+  }
+
+  initReadMonitor();
+  initBusyCounter();
+
 	PMIC_CTRL = PMIC_LOLVLEX_bm | PMIC_HILVLEN_bm | PMIC_MEDLVLEN_bm;
   sei();
   cmulti.open(Serial::BAUD_57600,F_CPU);
-  cmulti.print("Hallo Display\n");
-  LEDROT_ON;
+  LEDROT_OFF;
+  cmulti.sendInfo("Epaper ist da!","BR");
+  /*
   Epd epd;
 
   if (epd.Init() != 0) {
@@ -43,15 +59,7 @@ void setup() {
   }
   cmulti.print("EPD init\n");
 
-  /* This clears the SRAM of the e-paper display */
   epd.ClearFrame();
-
-  /**
-    * Due to RAM not enough in Arduino UNO, a frame buffer is not allowed.
-    * In this case, a smaller image buffer is allocated and you have to
-    * update a partial display several times.
-    * 1 byte = 8 pixels, therefore you have to set 8*N pixels at a time.
-    */
   unsigned char image[15000];
   Paint paint(image, 400, 300);    //width should be the multiple of 8
 
@@ -92,20 +100,21 @@ void setup() {
 //  epd.SetPartialWindow(paint.GetImage(), 400, 300, paint.GetWidth(), paint.GetHeight());
   cmulti.print("EPD partial3\n");
 
-  /* This displays the data from the SRAM in e-Paper module */
+  // This displays the data from the SRAM in e-Paper module
   epd.SetPartialWindow(paint.GetImage(), 0, 0, paint.GetWidth(), paint.GetHeight());
   epd.DisplayFrame();
   cmulti.print("Display Frame\n");
 
-  /* This displays an image */
+  // This displays an image
   paint.Clear(UNCOLORED);
   paint.DrawPicture(imageButterfly,IMAGEBUTTERFLY_SIZE);
   cmulti.print("Transfer Picture\n");
   epd.SetPartialWindow(paint.GetImage(), 0, 0, paint.GetWidth(), paint.GetHeight());
   epd.DisplayFrame();
   cmulti.print("Display Picture\n");
-  /* Deep sleep */
+  // Deep sleep
   epd.Sleep();
+  */
 }
 
 int main()

@@ -25,5 +25,6 @@ void jobGetMeasureRate(Communication *output, char function,char address,char jo
 void jobSetMeasureRate(Communication *output, char function,char address,char job, void * pMem);
 void jobGetAverageRate(Communication *output, char function,char address,char job, void * pMem);
 void jobSetAverageRate(Communication *output, char function,char address,char job, void * pMem);
+void jobGotExternalTemperature(Communication *output, char function,char address,char job, void * pMem);
 
 #endif /* COMMANDFUNCTIONS_H_ */

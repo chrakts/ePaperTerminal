@@ -7,6 +7,7 @@
 #include "ComReceiver.h"
 #include "CommandFunctions.h"
 #include <ctype.h>
+#include "ledHardware.h"
 
 uint8_t rec_state_KNET = RCST_WAIT;
 uint8_t function_KNET=0;
@@ -27,47 +28,64 @@ uint8_t reset_attention;			// nur wenn true, dann darf Reset ausgeloest werden.
 void (*bootloader)( void ) = (void (*)(void)) (BOOT_SECTION_START/2);       // Set up function pointer
 void (*reset)( void ) = (void (*)(void)) 0x0000;       // Set up function pointer
 
-#define NUM_COMMANDS 35
-
+#define NUM_COMMANDS 13
+#define NUM_INFORMATION 1
 COMMAND commands[NUM_COMMANDS] =
-	{
-		{'-','-',CUSTOMER,NOPARAMETER,0,jobGotCRCError}, // Achtung, muss immer der erste sein
-		{'S','K',CUSTOMER,STRING,16,jobSetSecurityKey},
-		{'S','k',CUSTOMER,NOPARAMETER,0,jobGetSecurityKey},
-		{'C','t',CUSTOMER,NOPARAMETER,0,jobGetCTemperatureSensor},
-		{'C','h',CUSTOMER,NOPARAMETER,0,jobGetCHumiditySensor},
-		{'C','d',CUSTOMER,NOPARAMETER,0,jobGetCDewPointSensor},
-		{'C','a',CUSTOMER,NOPARAMETER,0,jobGetCAbsHumiditySensor},
-		{'S','C',DEVELOPMENT,NOPARAMETER,0,jobGetCompilationDate},
-		{'S','T',DEVELOPMENT,NOPARAMETER,0,jobGetCompilationTime},
-		{'S','m',PRODUCTION,NOPARAMETER,0,jobGetFreeMemory},
-		{'M','r',PRODUCTION,NOPARAMETER,16,jobGetMeasureRate},
-		{'M','R',PRODUCTION,UINT_16,16,jobSetMeasureRate},
-	};
+{
+  {'-','-',CUSTOMER,NOPARAMETER,0,jobGotCRCError}, // Achtung, muss immer der erste sein
+  {'S','K',CUSTOMER,STRING,16,jobSetSecurityKey},
+  {'S','k',CUSTOMER,NOPARAMETER,0,jobGetSecurityKey},
+  {'C','t',CUSTOMER,NOPARAMETER,0,jobGetCTemperatureSensor},
+  {'C','h',CUSTOMER,NOPARAMETER,0,jobGetCHumiditySensor},
+  {'C','d',CUSTOMER,NOPARAMETER,0,jobGetCDewPointSensor},
+  {'C','a',CUSTOMER,NOPARAMETER,0,jobGetCAbsHumiditySensor},
+  {'S','C',DEVELOPMENT,NOPARAMETER,0,jobGetCompilationDate},
+  {'S','T',DEVELOPMENT,NOPARAMETER,0,jobGetCompilationTime},
+  {'S','m',PRODUCTION,NOPARAMETER,0,jobGetFreeMemory},
+  {'M','r',PRODUCTION,NOPARAMETER,16,jobGetMeasureRate},
+  {'M','R',PRODUCTION,UINT_16,16,jobSetMeasureRate},
+  {'C','d',CUSTOMER,FLOAT,1,jobGotExternalTemperature},
+};
 
-
-
+INFORMATION information[NUM_INFORMATION]=
+{
+  {"CQ",'C','1','h',FLOAT,1,(void*)&fExternalTemperature}
+};
 
 void doJob(Communication *output)
 {
 	if (  (rec_state_KNET == RCST_DO_JOB) && (job_KNET > 0) )
 	{
-		if (SecurityLevel < commands[job_KNET-1].security)
-		{
-			 output->sendAnswer(fehler_text[SECURITY_ERROR],quelle_KNET,commands[job_KNET-1].function,address_KNET,commands[job_KNET-1].job,false);
+    if(isBroadcast==false)
+    {
+      if (SecurityLevel < commands[job_KNET-1].security)
+      {
+         output->sendAnswer(fehler_text[SECURITY_ERROR],quelle_KNET,commands[job_KNET-1].function,address_KNET,commands[job_KNET-1].job,false);
+      }
+      else
+      {
+        if ( job_KNET<=NUM_COMMANDS )
+        {
+          commands[job_KNET-1].commandFunction(output,commands[job_KNET-1].function,address_KNET,commands[job_KNET-1].job, parameter_text_KNET);
+        }
+      }
 		}
-		else
+		else // isBroadcast==true
 		{
-			if ( job_KNET<=NUM_COMMANDS )
-			{
-				commands[job_KNET-1].commandFunction(output,commands[job_KNET-1].function,address_KNET,commands[job_KNET-1].job, parameter_text_KNET);
-			}
+      switch( information[job_KNET-1].ptype )
+      {
+        case FLOAT:
+          *( (float *)information[job_KNET-1].targetVariable ) = ((float *)parameter_text_KNET)[0];
+        break;
+        case STRING: // nicht getestet
+          strncpy( (char *)information[job_KNET-1].targetVariable , (char *)parameter_text_KNET, (char *)information[job_KNET-1].pLength);
+        break;
+      }
 		}
 		free_parameter_KNET();
 		rec_state_KNET = RCST_WAIT;
 		function_KNET = 0;
 		job_KNET = 0;
-
 	}
 }
 
@@ -83,23 +101,24 @@ void comStateMachine(Communication *input)
 	char infoType;
 	if( input->getChar(act_char) == true )
 	{
-		if( 1==0 )
+		if( false )
 		{
 			rec_state_KNET = RCST_L1;
 		}
 		else
 		{
+      PORTA.OUT = ~rec_state_KNET;
 			switch( rec_state_KNET )
 			{
 				case RCST_WAIT:
 					if( act_char=='#' )
 					{
-//						LED_GRUEN_ON;
 						crcIndex = 0;
 						crcGlobal.Reset();
+						isBroadcast = false;
 						crcGlobal.Data(act_char);
 						rec_state_KNET = RCST_L1;
-					}
+ 					}
 				break;
 				case RCST_L1:
 					if( isxdigit(act_char)!=false )
@@ -197,16 +216,17 @@ void comStateMachine(Communication *input)
 					}*/
 				break;
 				case RCST_BR2:
-				if ( act_char=='R' )
-				{
-					if(crc_KNET==CRC_YES)
-						crcGlobal.Data(act_char);
-					rec_state_KNET = RCST_Q1;
-				}
-				else
-				{
-					rec_state_KNET= RCST_WAIT;
-				}
+          if ( act_char=='R' )
+          {
+            if(crc_KNET==CRC_YES)
+              crcGlobal.Data(act_char);
+            rec_state_KNET = RCST_Q1;
+            isBroadcast = true;
+         }
+          else
+          {
+            rec_state_KNET= RCST_WAIT;
+          }
 				break;
 				case RCST_Q1:
 					if(crc_KNET==CRC_YES)
@@ -239,22 +259,42 @@ void comStateMachine(Communication *input)
 					ready = false;
 					temp = 0;
 					i = 0;
-					do
+					if(isBroadcast==false)
 					{
-						if(commands[i].function == act_char)
-						{
-							temp = act_char;
-							ready = true;
-							if(crc_KNET==CRC_YES)
-								crcGlobal.Data(act_char);
-						}
-						i++;
-						if(i==NUM_COMMANDS)
-							ready = true;
-					}while (!ready);
+            do
+            {
+              if(commands[i].function == act_char)
+              {
+                temp = act_char;
+                ready = true;
+                if(crc_KNET==CRC_YES)
+                  crcGlobal.Data(act_char);
+              }
+              i++;
+              if(i==NUM_COMMANDS)
+                ready = true;
+            }while (!ready);
+					}
+					else
+					{
+           do
+            {
+              if(  (information[i].function==act_char) & (information[i].quelle[0]==quelle_KNET[0]) & (information[i].quelle[1]==quelle_KNET[1])  )
+              {
+                temp = act_char;
+                ready = true;
+                if(crc_KNET==CRC_YES)
+                  crcGlobal.Data(act_char);
+              }
+              i++;
+              if(i==NUM_INFORMATION)
+                ready = true;
+            }while (!ready);
+					}
 					function_KNET = temp;
 				break;
 				case RCST_WAIT_ADDRESS:
+
 					rec_state_KNET = RCST_WAIT_JOB;
 					address_KNET = act_char;
                     if(crc_KNET==CRC_YES)
@@ -265,22 +305,44 @@ void comStateMachine(Communication *input)
 					ready = false;
 					temp = 0;
 					i = 0;
-					do
+					if(isBroadcast==false)
 					{
-						if(commands[i].function == function_KNET)
-						{
-							if(commands[i].job == act_char)
-							{
-								temp = i+1;  // Achtung: job_KNET ist immer eins größer als der Index
-								ready = true;
-								if(crc_KNET==CRC_YES)
-									crcGlobal.Data(act_char);
-							}
-						}
-						i++;
-						if(i==NUM_COMMANDS)
-							ready = true;
-					}while (!ready);
+            do
+            {
+              if(commands[i].function == function_KNET)
+              {
+                if(commands[i].job == act_char)
+                {
+                  temp = i+1;  // Achtung: job_KNET ist immer eins größer als der Index
+                  ready = true;
+                  if(crc_KNET==CRC_YES)
+                    crcGlobal.Data(act_char);
+                }
+              }
+              i++;
+              if(i==NUM_COMMANDS)
+                ready = true;
+            }while (!ready);
+					}
+					else
+					{
+            do
+            {
+              if(  (information[i].function == function_KNET) && (information[i].address == address_KNET) && (information[i].quelle[0]==quelle_KNET[0]) && (information[i].quelle[1]==quelle_KNET[1]) )
+              {
+                if(information[i].job == act_char)
+                {
+                  temp = i+1;  // Achtung: job_KNET ist immer eins größer als der Index
+                  ready = true;
+                  if(crc_KNET==CRC_YES)
+                    crcGlobal.Data(act_char);
+                }
+              }
+              i++;
+              if(i==NUM_INFORMATION)
+                ready = true;
+            }while (!ready);
+					}
 					job_KNET = temp;
 					if (job_KNET==0)
 					{
@@ -291,16 +353,26 @@ void comStateMachine(Communication *input)
 					}
 					else
 					{
-						if( commands[job_KNET-1].ptype != NOPARAMETER )
+            uint8_t ptype,pLength;
+            if( isBroadcast==false)
+            {
+              ptype = commands[job_KNET-1].ptype;
+              pLength = commands[job_KNET-1].pLength;
+            }
+            else
+            {
+              ptype = information[job_KNET-1].ptype;
+              pLength = information[job_KNET-1].pLength;
+            }
+						if( ptype != NOPARAMETER )
 						{
-							parameter_text_KNET = (char*) getMemory(commands[job_KNET-1].ptype,commands[job_KNET-1].pLength);
-//							input->pformat("habe Speicher belegt: %d Bytes\n\r",commands[job_KNET-1].pLength);
+							parameter_text_KNET = (char*) getMemory(ptype,pLength);
 							if (parameter_text_KNET==NULL)
 							{
 								input->sendInfo("!!!!!Error!!!!!!","BR");
 							}
-							parameter_text_length_KNET = commands[job_KNET-1].pLength;
-							if( commands[job_KNET-1].ptype != STRING )
+							parameter_text_length_KNET = pLength;
+							if( ptype != STRING )
 								temp_parameter_text_KNET = (char *) getMemory(STRING,MAX_TEMP_STRING);
 							rec_state_KNET = RCST_GET_DATATYPE;
 						}
@@ -325,7 +397,7 @@ void comStateMachine(Communication *input)
 						rec_state_KNET = RCST_WAIT;
 				break;
 				case RCST_GET_DATATYPE: // einziger bekannter Datentyp : 'T'
-					if( act_char=='T' )
+					if( act_char=='F' )
 					{
 						if(crc_KNET==CRC_YES)
 							crcGlobal.Data(act_char);
@@ -381,7 +453,18 @@ void comStateMachine(Communication *input)
 				case RCST_GET_PARAMETER:
 					if(crc_KNET==CRC_YES)
 						crcGlobal.Data(act_char);
-					if ( commands[job_KNET-1].ptype==STRING )
+          uint8_t ptype,pLength;
+          if( isBroadcast==false)
+          {
+            ptype = commands[job_KNET-1].ptype;
+            pLength = commands[job_KNET-1].pLength;
+          }
+          else
+          {
+            ptype = information[job_KNET-1].ptype;
+            pLength = information[job_KNET-1].pLength;
+          }
+					if ( ptype==STRING )
 					{
 						if( (act_char=='<') )					// Parameterende
 						{
@@ -417,10 +500,10 @@ void comStateMachine(Communication *input)
 						{
 							errno = 0;
 							temp_parameter_text_KNET[temp_parameter_text_pointer_KNET] = 0;		// Zahlenstring abschießen
-							if ( parameter_text_pointer_KNET < commands[job_KNET-1].pLength )   // wird noch ein Parameter erwartet?
+							if ( parameter_text_pointer_KNET < pLength )   // wird noch ein Parameter erwartet?
 							{
 								uint32_t wert;
-								switch(commands[job_KNET-1].ptype)
+								switch(ptype)
 								{
 									case UINT_8:
 										uint8_t *pointer_u8;

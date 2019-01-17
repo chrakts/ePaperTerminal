@@ -9,8 +9,8 @@
 #define USART_RXCINTLVL_0 USART_RXCINTLVL_LO_gc
 #define USART_TXCINTLVL_0 USART_TXCINTLVL_LO_gc
 
-#define  USE_RS485_0   // RS232 zum Raspberry
-#undef USE_RS485_1   // RS485 zum CMulti-Netz
+#define  USE_RS485_0   // RS485 zum CMulti-Netz
+#undef USE_RS485_1   //
 
 #define USE_RS485_FEEDBACK_0
 
@@ -62,8 +62,8 @@
 // Achtung INT1 ist fix programmiert, Pin und Port sind frei
 #define Busy_Control_Pin     PIN2_bm
 #define Busy_Control_PinCtrl PIN2CTRL
-#define Busy_Control_Port    PORTD
-#define Busy_Control_IntVec  PORTD_INT0_vect
+#define Busy_Control_Port    PORTF
+#define Busy_Control_IntVec  PORTF_INT0_vect
 
 #define UART0_RING_BUFFER_SIZE 26
 #define UART1_RING_BUFFER_SIZE 26
