@@ -24,6 +24,8 @@
 #include "MyTimer.h"
 #include "CRC_Calc.h"
 #include "twi_master_driver.h"
+#include "spi_driver.h"
+#include "display.h"
 
 extern volatile uint8_t UART0_ring_received;
 extern volatile  char UART0_ring_buffer[UART0_RING_BUFFER_SIZE];
@@ -38,6 +40,12 @@ extern double dPressure , dSealevel ;
 extern uint16_t uLicht;
 
 extern double fExternalTemperature;
+extern double fExternalHumidity;
+extern double fExternalPressure;
+extern double fExternalDewPoint;
+extern double fInternalTemperature;
+extern double MqttTime;
+extern uint32_t secondsCounter;
 
 extern char Compilation_Date[];
 extern char Compilation_Time[];
@@ -69,10 +77,17 @@ class Communication;   // Forward declaration
 extern Communication cmulti;
 extern char quelle_KNET[3];
 
+typedef struct SPI_Master SPI_Master_t;
+extern SPI_Master_t spiDisplay;
+
+
+
 extern CRC_Calc crcGlobal;
 
 extern volatile uint8_t sendFree;
 extern volatile uint8_t sendAnswerFree;
 extern volatile bool nextSendReady;
+extern volatile bool nowUpdateDisplay;
+extern volatile bool isDisplayReady;
 
 #endif /* EXTERNAL_H_ */

@@ -43,6 +43,8 @@ struct Information
 	uint8_t ptype;
 	uint8_t pLength;
 	void *targetVariable;
+	void  (*gotNewInformation)  ();
+
 //	void  (*commandFunction)  (Communication *output, char function,char address,char job, void *parameterMem);
 };
 
@@ -52,5 +54,6 @@ void doJob(Communication *output);
 void comStateMachine(Communication *input);
 void *getMemory(uint8_t type,uint8_t num);
 void free_parameter_KNET(void);
+void gotNewMqttTime();
 
 #endif /* COMRECEIVER_H_ */

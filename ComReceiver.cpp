@@ -29,7 +29,7 @@ void (*bootloader)( void ) = (void (*)(void)) (BOOT_SECTION_START/2);       // S
 void (*reset)( void ) = (void (*)(void)) 0x0000;       // Set up function pointer
 
 #define NUM_COMMANDS 13
-#define NUM_INFORMATION 1
+#define NUM_INFORMATION 6
 COMMAND commands[NUM_COMMANDS] =
 {
   {'-','-',CUSTOMER,NOPARAMETER,0,jobGotCRCError}, // Achtung, muss immer der erste sein
@@ -49,7 +49,12 @@ COMMAND commands[NUM_COMMANDS] =
 
 INFORMATION information[NUM_INFORMATION]=
 {
-  {"CQ",'C','1','h',FLOAT,1,(void*)&fExternalTemperature}
+  {"CQ",'C','1','t',FLOAT,1,(void*)&fExternalTemperature,NULL},
+  {"CQ",'C','1','h',FLOAT,1,(void*)&fExternalHumidity,NULL},
+  {"C1",'C','1','p',FLOAT,1,(void*)&fExternalPressure,NULL},
+  {"CQ",'C','1','d',FLOAT,1,(void*)&fExternalDewPoint,NULL},
+  {"C1",'C','1','t',FLOAT,1,(void*)&fInternalTemperature,NULL},
+  {"DT",'t','1','s',FLOAT,1,(void*)&MqttTime,gotNewMqttTime}
 };
 
 void doJob(Communication *output)
@@ -72,21 +77,39 @@ void doJob(Communication *output)
 		}
 		else // isBroadcast==true
 		{
+      LEDROT_ON;
       switch( information[job_KNET-1].ptype )
       {
         case FLOAT:
           *( (float *)information[job_KNET-1].targetVariable ) = ((float *)parameter_text_KNET)[0];
         break;
+        case UINT_32:
+          *( (uint32_t *)information[job_KNET-1].targetVariable ) = ((uint32_t *)parameter_text_KNET)[0];
+        break;
         case STRING: // nicht getestet
           strncpy( (char *)information[job_KNET-1].targetVariable , (char *)parameter_text_KNET, (char *)information[job_KNET-1].pLength);
         break;
       }
+      if(information[job_KNET-1].gotNewInformation != NULL)
+        information[job_KNET-1].gotNewInformation();
+      _delay_ms(30);
+      LEDROT_OFF;
 		}
 		free_parameter_KNET();
 		rec_state_KNET = RCST_WAIT;
 		function_KNET = 0;
 		job_KNET = 0;
 	}
+}
+
+/* "2019-04-18-06-36-02" */
+// https://stackoverflow.com/questions/5754315/c-convert-char-to-timestamp/5754417#5754417
+// https://stackoverflow.com/questions/1859201/add-seconds-to-a-date
+void gotNewMqttTime()
+{
+  cli();
+  secondsCounter = uint32_t(MqttTime);
+  sei();
 }
 
 void comStateMachine(Communication *input)
@@ -397,7 +420,7 @@ void comStateMachine(Communication *input)
 						rec_state_KNET = RCST_WAIT;
 				break;
 				case RCST_GET_DATATYPE: // einziger bekannter Datentyp : 'T'
-					if( act_char=='F' )
+					if( (act_char=='F') | (act_char=='T') )
 					{
 						if(crc_KNET==CRC_YES)
 							crcGlobal.Data(act_char);
@@ -431,7 +454,7 @@ void comStateMachine(Communication *input)
 				break;
 
 				case RCST_WAIT_END1:
-					if( act_char=='\r' )
+					if( (act_char=='\r') | (act_char=='\n') )
 						rec_state_KNET = RCST_WAIT_END2;
 					else
 					{
@@ -441,7 +464,8 @@ void comStateMachine(Communication *input)
 					}
 				break;
 				case RCST_WAIT_END2:
-					if( act_char=='\n' )
+					//if( act_char=='\n' )
+					if( (act_char=='\r') | (act_char=='\n') )
 						rec_state_KNET = RCST_DO_JOB;
 					else
 					{

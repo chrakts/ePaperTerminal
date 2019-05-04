@@ -22,8 +22,10 @@ uint8_t isBroadcast = false;
 
 volatile TIMER MyTimers[MYTIMER_NUM]= {	{TM_START,RESTART_YES,50,0,nextSensorStatus},
                                         {TM_STOP,RESTART_YES,REPORT_BETWEEN_SENSORS,0,nextReportStatus},
-                                        {TM_STOP,RESTART_YES,100,0,sekundenTimer},
-										{TM_STOP,RESTART_NO,100,0,NULL}		// Timeout-Timer
+                                        {TM_START,RESTART_YES,100,0,sekundenTimer},
+                                        {TM_STOP,RESTART_NO,100,0,NULL},		// Timeout-Timer
+                                        {TM_START,RESTART_YES,6000,0,updateDisplay},		  // Update-Timer
+                                        {TM_START,RESTART_NO,20,0,displayReady}		  // Ready-Display-Timer
 };
 
 
@@ -31,6 +33,12 @@ volatile TIMER MyTimers[MYTIMER_NUM]= {	{TM_START,RESTART_YES,50,0,nextSensorSta
 float fTemperatur=-999,fHumidity=-999,fDewPoint=-999,fAbsHumitdity=-999;
 
 double fExternalTemperature = -99.0;
+double fExternalHumidity    = -99.0;
+double fExternalPressure    = -99.0;
+double fExternalDewPoint    = -99.0;
+double fInternalTemperature    = -99.0;
+double   MqttTime= 1111111111;
+uint32_t secondsCounter = 1545264000;
 
 volatile uint8_t statusSensoren = KLIMASENSOR;
 volatile uint8_t statusReport = TEMPREPORT;
@@ -52,7 +60,11 @@ TWI_MasterDriver_t twiE_Master;    /*!< TWI master module. */
 
 
 volatile bool nextSendReady=false;
+volatile bool nowUpdateDisplay=false;
+volatile bool isDisplayReady=false;
 
 Communication cmulti(0,Node,5);
+
+SPI_Master_t spiDisplay;
 
 
