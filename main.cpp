@@ -45,26 +45,34 @@ void setup()
   initReadMonitor();
   initBusyCounter();
 
+  SPI_MasterInit(&spiDisplay,&SPI_DEV,&SPI_PORT,false,SPI_MODE_0_gc,SPI_INTLVL_LO_gc,false,SPI_PRESCALER_DIV128_gc);
+
 	PMIC_CTRL = PMIC_LOLVLEX_bm | PMIC_HILVLEN_bm | PMIC_MEDLVLEN_bm;
   sei();
+  init_mytimer();
   cmulti.open(Serial::BAUD_57600,F_CPU);
   LEDROT_OFF;
   cmulti.sendInfo("Epaper ist da!","BR");
-  /*
+  initDisplay(&spiDisplay);//#################################################### muss wieder rein
+  cmulti.sendInfo("Epaper ist immer","BR");
+
+  //SHT2x_SoftReset();
+/*
   Epd epd;
 
-  if (epd.Init() != 0) {
-    //Serial.print("e-Paper init failed");
+  if (epd.Init(&spiDisplay) != 0) {
+    cmulti.print("e-Paper init failed\n");
     return;
   }
   cmulti.print("EPD init\n");
 
   epd.ClearFrame();
-  unsigned char image[15000];
-  Paint paint(image, 400, 300);    //width should be the multiple of 8
-
+  cmulti.print("EPD clear\n");
+  unsigned char image[7500];
+  Paint paint(image, 400, 150);    //width should be the multiple of 8
+  cmulti.print("EPD paint image \n");
   paint.Clear(UNCOLORED);
-  cmulti.print("Display Cleared\n");
+  cmulti.print("Display Cleared \n");
   paint.DrawStringAt(0, 0, "e-Paper Demo", &Font24, COLORED);
   cmulti.print("EPD partial\n");
 
@@ -86,9 +94,9 @@ void setup()
 //  paint.SetHeight(100);
 
 //  paint.Clear(UNCOLORED);
-  int i;
-  paint.DrawFilledCircle(200, 150, 34, COLORED);
-  paint.DrawFilledCircle(220, 170, 30, COLORED);
+//  int i;
+//  paint.DrawFilledCircle(200, 150, 34, COLORED);
+//  paint.DrawFilledCircle(220, 170, 30, COLORED);
 //  epd.SetPartialWindow(paint.GetImage(), 200, 120, paint.GetWidth(), paint.GetHeight());
 
 //  paint.Clear(UNCOLORED);
@@ -102,31 +110,66 @@ void setup()
 
   // This displays the data from the SRAM in e-Paper module
   epd.SetPartialWindow(paint.GetImage(), 0, 0, paint.GetWidth(), paint.GetHeight());
-  epd.DisplayFrame();
+  //epd.DisplayFrame();
   cmulti.print("Display Frame\n");
+  epd.SetPartialWindow(paint.GetImage(), 0, 150, paint.GetWidth(), paint.GetHeight());
+  epd.DisplayFrame();
+  cmulti.print("Display Frame2\n");
 
   // This displays an image
-  paint.Clear(UNCOLORED);
-  paint.DrawPicture(imageButterfly,IMAGEBUTTERFLY_SIZE);
-  cmulti.print("Transfer Picture\n");
-  epd.SetPartialWindow(paint.GetImage(), 0, 0, paint.GetWidth(), paint.GetHeight());
-  epd.DisplayFrame();
-  cmulti.print("Display Picture\n");
+  //paint.Clear(UNCOLORED);
+  //paint.DrawPicture(imageButterfly,IMAGEBUTTERFLY_SIZE);
+  //cmulti.print("Transfer Picture\n");
+  //epd.SetPartialWindow(paint.GetImage(), 0, 0, paint.GetWidth(), paint.GetHeight());
+  //epd.DisplayFrame();
+  //cmulti.print("Display Picture\n");
   // Deep sleep
-  epd.Sleep();
-  */
+  epd.Sleep();*/
+
 }
 
 int main()
 {
   setup();
   // put your main code here, to run repeatedly:
+  nowUpdateDisplay = true;
+  cmulti.sendInfo("Epaper will shown","BR");
+  uint8_t test;
+  uint32_t bremse=0;
   while(1)
   {
+    if(bremse>=300000)
+    {
+      //cmulti.sendAnswerInt("BR",'+','+','+',test,true);
+      bremse = 0;
+    }
+    bremse++;
+/*    if(nowUpdateDisplay==true)
+    {
+      if(statusDisplay==DISPLAY_CLEAR)
+        cmulti.sendInfo("Epaper update clear","BR");
+    }*/
+    test = showDisplay();
     comStateMachine(&cmulti);
     doJob(&cmulti);
   }
 }
+
+/*! \brief SPI master interrupt service routine.
+ *
+ *  The interrupt service routines calls one common function,
+ *  SPI_MasterInterruptHandler(SPI_Master_t *spi),
+ *  passing information about what module to handle.
+ *
+ *  Similar ISRs must be added if other SPI modules are to be used.
+ */
+ISR(SPIE_INT_vect)
+{
+	SPI_MasterInterruptHandler(&spiDisplay);
+}
+
+
+
 
 void init_clock(int sysclk, int pll)
 {
