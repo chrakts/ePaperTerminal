@@ -6,21 +6,23 @@
  */
 
 #include "ePaperTerminal.h"
+#include "ledHardware.h"
 
 extern volatile uint8_t do_sleep;
 
 void init_mytimer(void)
 {
-	CLK.RTCCTRL = CLK_RTCSRC_EXTCLK_gc | CLK_RTCEN_bm;
+	CLK.RTCCTRL = CLK_RTCSRC_RCOSC32_gc | CLK_RTCEN_bm;
+//	CLK.RTCCTRL = CLK_RTCSRC_EXTCLK_gc | CLK_RTCEN_bm;
 
 	do {
-		;/* Wait until RTC is not busy. */
+		;// Wait until RTC is not busy.
 	} while ( RTC.STATUS & RTC_SYNCBUSY_bm );
 
-	RTC.PER = 107;
+	RTC.PER = 20;
 	RTC.CNT = 0;
 	RTC.COMP = 0;
-	RTC.CTRL = 7; // Teiler 1 ???
+	RTC.CTRL = RTC_PRESCALER_DIV16_gc; // Teiler 1 ???
 	RTC.INTCTRL	= RTC_OVFINTLVL_MED_gc;
 }
 
@@ -116,8 +118,19 @@ void LED_toggle(uint8_t test)
 
 void sekundenTimer(uint8_t test)
 {
-
+  secondsCounter++;
 }
+
+void updateDisplay(uint8_t test)
+{
+  nowUpdateDisplay = true;
+}
+
+void displayReady(uint8_t test)
+{
+  isDisplayReady = true;
+}
+
 void goto_sleep(uint8_t test)
 {
 }
