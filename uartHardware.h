@@ -65,8 +65,8 @@
 #define Busy_Control_Port    PORTF
 #define Busy_Control_IntVec  PORTF_INT0_vect
 
-#define UART0_RING_BUFFER_SIZE 26
-#define UART1_RING_BUFFER_SIZE 26
+#define UART0_RING_BUFFER_SIZE 50
+#define UART1_RING_BUFFER_SIZE 2
 
 extern volatile uint8_t UART0_ring_received;
 extern volatile  char UART0_ring_buffer[UART0_RING_BUFFER_SIZE];
