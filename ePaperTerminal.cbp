@@ -13,7 +13,7 @@
 				<Option type="5" />
 				<Option compiler="avr-gcc" />
 				<Compiler>
-					<Add option="-O3" />
+					<Add option="-Os" />
 					<Add option="-Wall" />
 					<Add option="-std=c++14" />
 				</Compiler>
@@ -46,6 +46,7 @@
 			<Add directory="../e-paper42" />
 			<Add directory="../twiMaster" />
 			<Add directory="../sensirion" />
+			<Add directory="../dma-atxmega" />
 		</Compiler>
 		<Linker>
 			<Add option="-s" />
@@ -79,28 +80,21 @@
 		<Unit filename="../e-paper42/epdif.h" />
 		<Unit filename="../e-paper42/epdpaint.cpp" />
 		<Unit filename="../e-paper42/epdpaint.h" />
-		<Unit filename="../e-paper42/font12.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="../e-paper42/font16.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="../e-paper42/font20.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="../e-paper42/font24.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="../e-paper42/font8.c">
-			<Option compilerVar="CC" />
-		</Unit>
+		<Unit filename="../e-paper42/font12.cpp" />
+		<Unit filename="../e-paper42/font16.cpp" />
+		<Unit filename="../e-paper42/font20.cpp" />
+		<Unit filename="../e-paper42/font24.cpp" />
+		<Unit filename="../e-paper42/font8.cpp" />
 		<Unit filename="../e-paper42/fonts.h" />
-		<Unit filename="../sensirion/sensirion_protocol.cpp" />
-		<Unit filename="../sensirion/sensirion_protocol.h" />
+		<Unit filename="../e-paper42/grotesk24x48.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="../spi/Operators.cpp" />
 		<Unit filename="../spi/Operators.h" />
 		<Unit filename="../spi/SPI.cpp" />
 		<Unit filename="../spi/SPI.h" />
+		<Unit filename="../spi/spi_driver.cpp" />
+		<Unit filename="../spi/spi_driver.h" />
 		<Unit filename="../twiMaster/twi_master_driver.cpp" />
 		<Unit filename="../twiMaster/twi_master_driver.h" />
 		<Unit filename="ComReceiver.cpp" />
@@ -111,6 +105,8 @@
 		<Unit filename="Globals.cpp" />
 		<Unit filename="MyTimer.cpp" />
 		<Unit filename="MyTimer.h" />
+		<Unit filename="display.cpp" />
+		<Unit filename="display.h" />
 		<Unit filename="ePaper42hardware.h" />
 		<Unit filename="ePaperTerminal.h" />
 		<Unit filename="imagedata.cpp" />
