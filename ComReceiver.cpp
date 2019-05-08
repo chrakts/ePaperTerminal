@@ -77,7 +77,6 @@ void doJob(Communication *output)
 		}
 		else // isBroadcast==true
 		{
-      LEDROT_ON;
       switch( information[job_KNET-1].ptype )
       {
         case FLOAT:
@@ -93,7 +92,6 @@ void doJob(Communication *output)
       if(information[job_KNET-1].gotNewInformation != NULL)
         information[job_KNET-1].gotNewInformation();
       _delay_ms(30);
-      LEDROT_OFF;
 		}
 		free_parameter_KNET();
 		rec_state_KNET = RCST_WAIT;
