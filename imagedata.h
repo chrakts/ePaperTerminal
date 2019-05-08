@@ -27,8 +27,10 @@
 
 extern const unsigned char IMAGE_BUTTERFLY[];
 extern const unsigned char imageButterfly[];
+extern const unsigned char imageOil_temperature[];
 
 #define IMAGEBUTTERFLY_SIZE 4670
+#define IMAGEOIL_TEMPERATURE_SIZE 237
 
 
 /* FILE END */

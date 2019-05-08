@@ -10,13 +10,12 @@ Epd epd;
 unsigned char globalImage[5000];
 Paint paint(globalImage, 400, 100);
 uint8_t statusDisplay=DISPLAY_SLEEP;
-
+const char *Wochentage[]={"Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"};
 uint8_t showDisplay()
 {
 uint8_t temp;
-  extern int __heap_start, *__brkval;
-  int v;
-  uint16_t mem = (uint16_t) &v - (__brkval == 0 ? (uint16_t) &__heap_start : (uint16_t) __brkval);
+char infoString[30];
+char infoString2[30];
   if( nowUpdateDisplay )
   {
     switch(statusDisplay)
@@ -35,10 +34,12 @@ uint8_t temp;
       case DISPLAY_PREPARE:
         paint.ClearFast();
         //paint.Clear(UNCOLORED);
-        statusDisplay = DISPLAY_SETUP;
+        statusDisplay = DISPLAY_SETUP1;
       break;
-      case DISPLAY_SETUP:
-        char infoString[20];
+      case DISPLAY_SETUP1:
+
+        // Erstes Drittel
+
         paint.DrawStringAt(10, 5, "Draussen", &Font24, COLORED);
 
         sprintf(infoString,"%.2f`C",fExternalTemperature);
@@ -53,6 +54,11 @@ uint8_t temp;
         sprintf(infoString,"%.1f`C",fExternalDewPoint);
         paint.DrawStringAt(220, 59, infoString, &Font24, COLORED);
         epd.SetPartialWindow(paint.GetImage(), 0, 0, paint.GetWidth(), paint.GetHeight());
+        statusDisplay = DISPLAY_SETUP2;
+      break;
+      case DISPLAY_SETUP2:
+        // Zweites Drittel
+
         paint.ClearFast();
 
         paint.DrawStringAt(10, 5, "Drinnen", &Font24, COLORED);
@@ -61,31 +67,31 @@ uint8_t temp;
         paint.DrawStringAt(10, 35, infoString, &Grotesk48, COLORED);
 
         epd.SetPartialWindow(paint.GetImage(), 0, 100, paint.GetWidth(), paint.GetHeight());
+        statusDisplay = DISPLAY_SETUP3;
+      break;
+      case DISPLAY_SETUP3:  // Drittes Drittel
         paint.ClearFast();
-
         time_t lokalTime;
         cli();
         lokalTime = (time_t)secondsCounter;
         sei();
-
         struct tm info;
         localtime_r( &lokalTime,&info );
 
         strftime(infoString,20,"%H:%M", &info);
-        paint.DrawStringAt(10, 25, infoString, &Grotesk48, COLORED);
-        strftime(infoString,20,"%A", &info);
-        paint.DrawStringAt(220, 5, infoString, &Font24, COLORED);
-        strftime(infoString,20,"%d.%m.%y", &info);
-        paint.DrawStringAt(220, 32, infoString, &Font24, COLORED);
-
-        sprintf(infoString,"%" PRIu32 ,secondsCounter);
-        paint.DrawStringAt(220, 59, infoString, &Font24, COLORED);
-
-//        sprintf(infoString,"%" PRIu16 ,mem);
-//        paint.DrawStringAt(220, 55, infoString, &Font24, COLORED);
-
+        paint.DrawStringAt(10, 35, infoString, &Grotesk48, COLORED);
+        strftime(infoString,20,"%w", &info);
+        strftime(infoString2,20,"%d.%m.%y", &info);
+        sprintf(infoString,"%s, %s",Wochentage[infoString[0]-48],infoString2);
+        paint.DrawStringAt(10, 5, infoString, &Font24, COLORED);
+        paint.DrawPicture(&heizung,224,35);
+        paint.DrawPicture(&telegram,224+48+8,35);
+        // fehlt noch die Möglichkeit kleine Bilder zu printen
+        //sprintf(infoString,"%" PRIu32 ,secondsCounter);
+        //paint.DrawStringAt(220, 59, infoString, &Font24, COLORED);
+        LEDROT_ON;
         epd.SetPartialWindow(paint.GetImage(), 0, 200, paint.GetWidth(), paint.GetHeight());
-
+        LEDROT_OFF;
         statusDisplay = DISPLAY_SHOW;
       break;
       case DISPLAY_SHOW:
@@ -94,8 +100,10 @@ uint8_t temp;
           statusDisplay = DISPLAY_GOTO_SLEEP;*/
          //epd.SetPartialWindow(paint.GetImage(), 0, 100, paint.GetWidth(), paint.GetHeight());
          //epd.SetPartialWindow(paint.GetImage(), 0, 200, paint.GetWidth(), paint.GetHeight());
-         epd.DisplayFrame();
-         statusDisplay = DISPLAY_GOTO_SLEEP;
+         //epd.DisplayFrame();
+        temp = epd.DisplayFrameStep();
+        if(temp<1)
+          statusDisplay = DISPLAY_GOTO_SLEEP;
       break;
       case DISPLAY_GOTO_SLEEP:
 
@@ -106,8 +114,8 @@ uint8_t temp;
         statusDisplay = DISPLAY_SLEEP;
     }
   }
-  return(temp);
-//  return(statusDisplay);
+//  return(temp);
+  return(statusDisplay);
 }
 
 void initDisplay(SPI_Master_t *spi)

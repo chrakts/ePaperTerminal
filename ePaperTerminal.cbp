@@ -86,9 +86,7 @@
 		<Unit filename="../e-paper42/font24.cpp" />
 		<Unit filename="../e-paper42/font8.cpp" />
 		<Unit filename="../e-paper42/fonts.h" />
-		<Unit filename="../e-paper42/grotesk24x48.c">
-			<Option compilerVar="CC" />
-		</Unit>
+		<Unit filename="../e-paper42/grotesk24x48.cpp" />
 		<Unit filename="../spi/Operators.cpp" />
 		<Unit filename="../spi/Operators.h" />
 		<Unit filename="../spi/SPI.cpp" />
@@ -116,6 +114,7 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="myconstants.h" />
+		<Unit filename="pictures/oil-temperature.cpp" />
 		<Unit filename="spiHardware.h" />
 		<Unit filename="uartHardware.h" />
 		<Extensions>

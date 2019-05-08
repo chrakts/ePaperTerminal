@@ -80,6 +80,8 @@ extern char quelle_KNET[3];
 typedef struct SPI_Master SPI_Master_t;
 extern SPI_Master_t spiDisplay;
 
+extern PICTURECOMP heizung;
+extern PICTURECOMP telegram;
 
 
 extern CRC_Calc crcGlobal;
