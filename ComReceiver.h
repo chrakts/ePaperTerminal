@@ -55,5 +55,6 @@ void comStateMachine(Communication *input);
 void *getMemory(uint8_t type,uint8_t num);
 void free_parameter_KNET(void);
 void gotNewMqttTime();
+void gotHeaterAlarmInfo();
 
 #endif /* COMRECEIVER_H_ */

@@ -29,7 +29,7 @@ void (*bootloader)( void ) = (void (*)(void)) (BOOT_SECTION_START/2);       // S
 void (*reset)( void ) = (void (*)(void)) 0x0000;       // Set up function pointer
 
 #define NUM_COMMANDS 13
-#define NUM_INFORMATION 6
+#define NUM_INFORMATION 8
 COMMAND commands[NUM_COMMANDS] =
 {
   {'-','-',CUSTOMER,NOPARAMETER,0,jobGotCRCError}, // Achtung, muss immer der erste sein
@@ -53,8 +53,10 @@ INFORMATION information[NUM_INFORMATION]=
   {"CQ",'C','1','h',FLOAT,1,(void*)&fExternalHumidity,NULL},
   {"C1",'C','1','p',FLOAT,1,(void*)&fExternalPressure,NULL},
   {"CQ",'C','1','d',FLOAT,1,(void*)&fExternalDewPoint,NULL},
-  {"C1",'C','1','t',FLOAT,1,(void*)&fInternalTemperature,NULL},
-  {"DT",'t','1','s',FLOAT,1,(void*)&MqttTime,gotNewMqttTime}
+  {"xx",'C','1','t',FLOAT,1,(void*)&fInternalTemperature,NULL},
+  {"DT",'t','1','s',FLOAT,1,(void*)&MqttTime,gotNewMqttTime},
+  {"H1",'H','1','a',STRING,5,(void*)&heaterAlarm,gotHeaterAlarmInfo},
+  {"H1",'H','1','w',STRING,5,(void*)&heaterWater,gotHeaterAlarmInfo}
 };
 
 void doJob(Communication *output)
@@ -108,6 +110,14 @@ void gotNewMqttTime()
   cli();
   secondsCounter = uint32_t(MqttTime);
   sei();
+}
+
+void gotHeaterAlarmInfo()
+{
+  if((strcmp(heaterAlarm,"ON")==0) | (strcmp(heaterWater,"ON")==0))
+    heaterCollectionAlarm = true;
+  else
+    heaterCollectionAlarm = false;
 }
 
 void comStateMachine(Communication *input)
@@ -418,7 +428,7 @@ void comStateMachine(Communication *input)
 						rec_state_KNET = RCST_WAIT;
 				break;
 				case RCST_GET_DATATYPE: // einziger bekannter Datentyp : 'T'
-					if( (act_char=='F') | (act_char=='T') )
+					if( (act_char=='F') | (act_char=='t')  | (act_char=='T') )
 					{
 						if(crc_KNET==CRC_YES)
 							crcGlobal.Data(act_char);
