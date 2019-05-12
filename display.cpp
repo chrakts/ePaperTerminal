@@ -67,10 +67,10 @@ char infoString2[30];
         paint.DrawStringAt(10, 35, infoString, &Grotesk48, COLORED);
 
         sprintf(infoString,"%.1f%%rH",fInternalHumidity);
-        paint.DrawStringAt(220, 5, infoString, &Font24, COLORED);
+        paint.DrawStringAt(220, 15, infoString, &Font24, COLORED);
 
         sprintf(infoString,"%.1f`C",fInternalDewPoint);
-        paint.DrawStringAt(220, 59, infoString, &Font24, COLORED);
+        paint.DrawStringAt(220, 49, infoString, &Font24, COLORED);
 
         epd.SetPartialWindow(paint.GetImage(), 0, 100, paint.GetWidth(), paint.GetHeight());
         statusDisplay = DISPLAY_SETUP3;
