@@ -66,6 +66,12 @@ char infoString2[30];
         sprintf(infoString,"%.2f`C",fInternalTemperature);
         paint.DrawStringAt(10, 35, infoString, &Grotesk48, COLORED);
 
+        sprintf(infoString,"%.1f%%rH",fInternalHumidity);
+        paint.DrawStringAt(220, 5, infoString, &Font24, COLORED);
+
+        sprintf(infoString,"%.1f`C",fInternalDewPoint);
+        paint.DrawStringAt(220, 59, infoString, &Font24, COLORED);
+
         epd.SetPartialWindow(paint.GetImage(), 0, 100, paint.GetWidth(), paint.GetHeight());
         statusDisplay = DISPLAY_SETUP3;
       break;
@@ -84,14 +90,13 @@ char infoString2[30];
         strftime(infoString2,20,"%d.%m.%y", &info);
         sprintf(infoString,"%s, %s",Wochentage[infoString[0]-48],infoString2);
         paint.DrawStringAt(10, 5, infoString, &Font24, COLORED);
-        paint.DrawPicture(&heizung,224,35);
+        if(heaterCollectionAlarm==true)
+          paint.DrawPicture(&heizung,224,35);
         paint.DrawPicture(&telegram,224+48+8,35);
         // fehlt noch die Möglichkeit kleine Bilder zu printen
         //sprintf(infoString,"%" PRIu32 ,secondsCounter);
         //paint.DrawStringAt(220, 59, infoString, &Font24, COLORED);
-        LEDROT_ON;
         epd.SetPartialWindow(paint.GetImage(), 0, 200, paint.GetWidth(), paint.GetHeight());
-        LEDROT_OFF;
         statusDisplay = DISPLAY_SHOW;
       break;
       case DISPLAY_SHOW:

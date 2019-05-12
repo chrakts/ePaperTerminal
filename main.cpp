@@ -8,6 +8,8 @@
 #include "epdpaint.h"
 #include "ledHardware.h"
 #include "External.h"
+#include "sht2x.h"
+#include "localeClimate.h"
 
 #define COLORED     0
 #define UNCOLORED   1
@@ -34,29 +36,57 @@ void setup()
   AUX3_ON;
   AUX4_ON;
   init_clock(SYSCLK, PLL);
-  for( uint8_t i=0;i<3;i++)
+/*  for( uint8_t i=0;i<3;i++)
   {
     LEDROT_ON;
     _delay_ms(300);
     LEDROT_OFF;
     _delay_ms(300);
-  }
+  }*/
 
   initReadMonitor();
   initBusyCounter();
 
   SPI_MasterInit(&spiDisplay,&SPI_DEV,&SPI_PORT,false,SPI_MODE_0_gc,SPI_INTLVL_LO_gc,false,SPI_PRESCALER_DIV128_gc);
+  TWI_MasterInit(&twiC_Master, &TWIC, TWI_MASTER_INTLVL_LO_gc, TWI_BAUDSETTING);
 
 	PMIC_CTRL = PMIC_LOLVLEX_bm | PMIC_HILVLEN_bm | PMIC_MEDLVLEN_bm;
   sei();
   init_mytimer();
   cmulti.open(Serial::BAUD_57600,F_CPU);
   LEDROT_OFF;
+  uint8_t serialNumber[8];
+  char serialText[20],temp[5];
   cmulti.sendInfo("Epaper ist da!","BR");
-  initDisplay(&spiDisplay);//#################################################### muss wieder rein
-  cmulti.sendInfo("Epaper ist immer","BR");
+  serialText[0]='\000';
+  localClima.getSerialNumber(serialNumber);
 
-  //SHT2x_SoftReset();
+  for(uint8_t i=0;i<8;i++)
+  {
+    sprintf(temp, "%" PRIx8, serialNumber[i]);
+    strcat( serialText,temp );
+  }
+  cmulti.sendInfo(serialText,"BR");
+
+  LEDROT_ON;
+  localClima.startMeasurementPoll(SHT2::etSHT2xMeasureType::TEMP);
+  int16_t temperature;
+  while(localClima.getMeasurementPoll(&temperature)==0)
+  {
+  }
+  LEDROT_OFF;
+  fInternalTemperature = localClima.CalcTemperatureC(temperature);
+  localClima.startMeasurementPoll(SHT2::etSHT2xMeasureType::HUMIDITY);
+  int16_t humidity;
+  while(localClima.getMeasurementPoll(&humidity)==0)
+  {
+  }
+  LEDROT_OFF;
+  fInternalHumidity = localClima.CalcRH(humidity);
+
+  initDisplay(&spiDisplay);//#################################################### muss wieder rein
+
+  //SHT2_SoftReset();
 /*
   Epd epd;
 
@@ -150,6 +180,7 @@ int main()
         cmulti.sendInfo("Epaper update clear","BR");
     }*/
     test = showDisplay();
+    measureClimate();
     comStateMachine(&cmulti);
     doJob(&cmulti);
   }

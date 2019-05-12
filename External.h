@@ -44,7 +44,12 @@ extern double fExternalHumidity;
 extern double fExternalPressure;
 extern double fExternalDewPoint;
 extern double fInternalTemperature;
+extern double fInternalHumidity;
+extern double fInternalDewPoint;
 extern double MqttTime;
+extern char   heaterAlarm[5];
+extern char   heaterWater[5];
+extern bool heaterCollectionAlarm;
 extern uint32_t secondsCounter;
 
 extern char Compilation_Date[];
@@ -72,10 +77,12 @@ extern uint16_t measureRate_100ms;
 extern TWI_MasterDriver_t twiC_Master;    /*!< TWI master module. */
 extern TWI_MasterDriver_t twiE_Master;    /*!< TWI master module. */
 
+extern char quelle_KNET[3];
 
 class Communication;   // Forward declaration
 extern Communication cmulti;
-extern char quelle_KNET[3];
+class SHT2;
+extern SHT2 localClima;
 
 typedef struct SPI_Master SPI_Master_t;
 extern SPI_Master_t spiDisplay;
@@ -90,6 +97,7 @@ extern volatile uint8_t sendFree;
 extern volatile uint8_t sendAnswerFree;
 extern volatile bool nextSendReady;
 extern volatile bool nowUpdateDisplay;
+extern volatile bool nowUpdateClima;
 extern volatile bool isDisplayReady;
 
 #endif /* EXTERNAL_H_ */

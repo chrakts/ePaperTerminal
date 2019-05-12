@@ -126,6 +126,11 @@ void updateDisplay(uint8_t test)
   nowUpdateDisplay = true;
 }
 
+void updateClimate(uint8_t test)
+{
+  nowUpdateClima = true;
+}
+
 void displayReady(uint8_t test)
 {
   isDisplayReady = true;

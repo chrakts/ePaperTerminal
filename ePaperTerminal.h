@@ -33,6 +33,7 @@
 #include "sensirion_protocol.h"
 #include "CmultiBusy.h"
 #include "Communication.h"
+#include "sht2x.h"
 
 
 #endif /* EPAPERTERMINAL_H_ */

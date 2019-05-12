@@ -47,6 +47,7 @@
 			<Add directory="../twiMaster" />
 			<Add directory="../sensirion" />
 			<Add directory="../dma-atxmega" />
+			<Add directory="../sht2x" />
 		</Compiler>
 		<Linker>
 			<Add option="-s" />
@@ -87,6 +88,8 @@
 		<Unit filename="../e-paper42/font8.cpp" />
 		<Unit filename="../e-paper42/fonts.h" />
 		<Unit filename="../e-paper42/grotesk24x48.cpp" />
+		<Unit filename="../sht2x/sht2x.cpp" />
+		<Unit filename="../sht2x/sht2x.h" />
 		<Unit filename="../spi/Operators.cpp" />
 		<Unit filename="../spi/Operators.h" />
 		<Unit filename="../spi/SPI.cpp" />
@@ -110,6 +113,8 @@
 		<Unit filename="imagedata.cpp" />
 		<Unit filename="imagedata.h" />
 		<Unit filename="ledHardware.h" />
+		<Unit filename="localeClimate.cpp" />
+		<Unit filename="localeClimate.h" />
 		<Unit filename="main.cpp">
 			<Option compilerVar="CC" />
 		</Unit>
