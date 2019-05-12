@@ -92,10 +92,13 @@ char infoString2[30];
         paint.DrawStringAt(10, 5, infoString, &Font24, COLORED);
         if(heaterCollectionAlarm==true)
           paint.DrawPicture(&heizung,224,35);
-        paint.DrawPicture(&telegram,224+48+8,35);
-        // fehlt noch die Möglichkeit kleine Bilder zu printen
-        //sprintf(infoString,"%" PRIu32 ,secondsCounter);
-        //paint.DrawStringAt(220, 59, infoString, &Font24, COLORED);
+        if(gotEmailNumber>0)
+        {
+          paint.DrawPicture(&email,280,35);
+          sprintf(infoString,"%d",gotEmailNumber);
+          paint.DrawStringAt(336, 35, infoString, &Grotesk48, COLORED);
+
+        }
         epd.SetPartialWindow(paint.GetImage(), 0, 200, paint.GetWidth(), paint.GetHeight());
         statusDisplay = DISPLAY_SHOW;
       break;

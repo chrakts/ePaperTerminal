@@ -51,6 +51,7 @@ extern char   heaterAlarm[5];
 extern char   heaterWater[5];
 extern bool heaterCollectionAlarm;
 extern uint32_t secondsCounter;
+extern uint8_t gotEmailNumber;
 
 extern char Compilation_Date[];
 extern char Compilation_Time[];
@@ -87,6 +88,7 @@ extern SHT2 localClima;
 typedef struct SPI_Master SPI_Master_t;
 extern SPI_Master_t spiDisplay;
 
+extern PICTURECOMP email;
 extern PICTURECOMP heizung;
 extern PICTURECOMP telegram;
 

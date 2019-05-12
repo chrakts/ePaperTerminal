@@ -53,7 +53,7 @@ INFORMATION information[NUM_INFORMATION]=
   {"CQ",'C','1','h',FLOAT,1,(void*)&fExternalHumidity,NULL},
   {"C1",'C','1','p',FLOAT,1,(void*)&fExternalPressure,NULL},
   {"CQ",'C','1','d',FLOAT,1,(void*)&fExternalDewPoint,NULL},
-  {"xx",'C','1','t',FLOAT,1,(void*)&fInternalTemperature,NULL},
+  {"DT",'e','c','n',UINT_8,1,(void*)&gotEmailNumber,NULL},
   {"DT",'t','1','s',FLOAT,1,(void*)&MqttTime,gotNewMqttTime},
   {"H1",'H','1','a',STRING,5,(void*)&heaterAlarm,gotHeaterAlarmInfo},
   {"H1",'H','1','w',STRING,5,(void*)&heaterWater,gotHeaterAlarmInfo}
@@ -86,6 +86,9 @@ void doJob(Communication *output)
         break;
         case UINT_32:
           *( (uint32_t *)information[job_KNET-1].targetVariable ) = ((uint32_t *)parameter_text_KNET)[0];
+        break;
+        case UINT_8:
+          *( (uint8_t *)information[job_KNET-1].targetVariable ) = ((uint8_t *)parameter_text_KNET)[0];
         break;
         case STRING: // nicht getestet
           strncpy( (char *)information[job_KNET-1].targetVariable , (char *)parameter_text_KNET, (char *)information[job_KNET-1].pLength);

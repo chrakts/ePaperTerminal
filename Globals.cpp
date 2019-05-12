@@ -45,6 +45,7 @@ char   heaterWater[5]="non";
 bool heaterCollectionAlarm=false;
 double   MqttTime= 1111111111;
 uint32_t secondsCounter = 1545264000;
+uint8_t gotEmailNumber = 0;
 
 volatile uint8_t statusSensoren = KLIMASENSOR;
 volatile uint8_t statusReport = TEMPREPORT;
