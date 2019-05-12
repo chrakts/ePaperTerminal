@@ -26,7 +26,7 @@ char wert[10];
       break;
       case CLIMATE_SEND_T:
         sprintf(wert,"%.4f",fInternalTemperature);
-        cmulti.sendStandard(wert,BROADCAST,'C','1','T','F');
+        cmulti.sendStandard(wert,BROADCAST,'C','1','t','F');
         statusClimate++;
       break;
       case CLIMATE_START_H:
@@ -46,7 +46,7 @@ char wert[10];
       break;
       case CLIMATE_SEND_H:
         sprintf(wert,"%.4f",fInternalHumidity);
-        cmulti.sendStandard(wert,BROADCAST,'C','1','H','F');
+        cmulti.sendStandard(wert,BROADCAST,'C','1','h','F');
         statusClimate++;
       break;
       case CLIMATE_CALC_D:
@@ -57,7 +57,7 @@ char wert[10];
       break;
       case CLIMATE_SEND_D:
         sprintf(wert,"%.4f",fInternalDewPoint);
-        cmulti.sendStandard(wert,BROADCAST,'C','1','D','F');
+        cmulti.sendStandard(wert,BROADCAST,'C','1','d','F');
         nowUpdateClima = false;
         statusClimate = CLIMATE_SLEEP;
       break;
