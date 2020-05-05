@@ -4,37 +4,58 @@
  * Created: 26.04.2017 14:54:45
  *  Author: a16007
  */
-#include "External.h"
+
 #include "CommandFunctions.h"
-#include "CRC_Calc.h"
+#include "External.h"
+#include "../Secrets/secrets.h"
 #include "ledHardware.h"
+#include "../ComReceiver/cmultiStandardCommands.h"
 
-void jobGotCRCError(Communication *output, char function,char address,char job, void * pMem)
+COMMAND cnetCommands[NUM_COMMANDS] =
 {
-	output->sendAnswer(fehler_text[CRC_ERROR],quelle_KNET,function,address,job,false);
+    cmultiStandardCommands,
+    {'C','t',CUSTOMER,NOPARAMETER,0,jobGetCTemperatureSensor},
+    {'C','h',CUSTOMER,NOPARAMETER,0,jobGetCHumiditySensor},
+    {'C','d',CUSTOMER,NOPARAMETER,0,jobGetCDewPointSensor},
+    {'C','a',CUSTOMER,NOPARAMETER,0,jobGetCAbsHumiditySensor},
+    {'M','r',PRODUCTION,NOPARAMETER,16,jobGetMeasureRate},
+    {'M','R',PRODUCTION,UINT_16,16,jobSetMeasureRate},
+    {'C','d',CUSTOMER,FLOAT,1,jobGotExternalTemperature}
+};
+
+INFORMATION information[NUM_INFORMATION]=
+{
+  {"CQ",'C','1','t',FLOAT,1,(void*)&fExternalTemperature,NULL},
+  {"CQ",'C','1','h',FLOAT,1,(void*)&fExternalHumidity,NULL},
+  {"C1",'C','1','p',FLOAT,1,(void*)&fExternalPressure,NULL},
+  {"CQ",'C','1','d',FLOAT,1,(void*)&fExternalDewPoint,NULL},
+  {"DT",'e','c','n',UINT_8,1,(void*)&gotEmailNumber,NULL},
+  {"DT",'t','1','s',FLOAT,1,(void*)&MqttTime,gotNewMqttTime},
+  {"H1",'H','1','a',STRING,5,(void*)&heaterAlarm,gotHeaterAlarmInfo},
+  {"H1",'H','1','w',STRING,5,(void*)&heaterWater,gotHeaterAlarmInfo}
+};
+
+void jobGetCTemperatureSensor(ComReceiver *comRec, char function,char address,char job, void * pMem)
+{
+	comRec->sendAnswerDouble(function,address,job,(double)fTemperatur,true);
 }
 
-void jobGetCTemperatureSensor(Communication *output, char function,char address,char job, void * pMem)
+void jobGetCHumiditySensor(ComReceiver *comRec, char function,char address,char job, void * pMem)
 {
-	output->sendAnswerDouble(quelle_KNET,function,address,job,(double)fTemperatur,true);
+	comRec->sendAnswerDouble(function,address,job,(double)fHumidity,true);
 }
 
-void jobGetCHumiditySensor(Communication *output, char function,char address,char job, void * pMem)
+void jobGetCAbsHumiditySensor(ComReceiver *comRec, char function,char address,char job, void * pMem)
 {
-	output->sendAnswerDouble(quelle_KNET,function,address,job,(double)fHumidity,true);
+	comRec->sendAnswerDouble(function,address,job,(double)fAbsHumitdity,true);
 }
 
-void jobGetCAbsHumiditySensor(Communication *output, char function,char address,char job, void * pMem)
+void jobGetCDewPointSensor(ComReceiver *comRec, char function,char address,char job, void * pMem)
 {
-	output->sendAnswerDouble(quelle_KNET,function,address,job,(double)fAbsHumitdity,true);
+	comRec->sendAnswerDouble(function,address,job,(double)fDewPoint,true);
 }
 
-void jobGetCDewPointSensor(Communication *output, char function,char address,char job, void * pMem)
-{
-	output->sendAnswerDouble(quelle_KNET,function,address,job,(double)fDewPoint,true);
-}
-
-void jobGotExternalTemperature(Communication *output, char function,char address,char job, void * pMem)
+void jobGotExternalTemperature(ComReceiver *comRec, char function,char address,char job, void * pMem)
 {
 // #1aD BR C1 S C1 t F17.409996<0355
 char answer[30];
@@ -43,83 +64,33 @@ char answer[30];
 		double *pointer;
     pointer = (double*) pMem;
     fExternalTemperature = pointer[0];
-//    output->sendAnswerDouble(quelle_KNET,function,address,job,(double)455.345,true);
+//    comRec->sendAnswerDouble(function,address,job,(double)455.345,true);
     sprintf(answer,"NT:%f",(double)fExternalTemperature);
-    output->sendAnswer(answer,(char*)"BR",function,address,job,true);
+    comRec->sendAnswer(answer,function,address,job,true);
 	}
 }
 
-void jobSetSecurityKey(Communication *output, char function,char address,char job, void * pMem)
-{
-uint8_t ret = true;
-	if (strcmp((char *)pMem,"Phe6%!kdf?+2aQ")==0)
-	{
-		SecurityLevel = PRODUCTION;
-	}
-	else if(strcmp((char *)pMem,"D=&27ane%24dez")==0)
-	{
-		SecurityLevel = DEVELOPMENT;
-	}
-	else
-	{
-		SecurityLevel = CUSTOMER;
-		ret = false;
-	}
-	output->sendAnswerInt(quelle_KNET,function,address,job,SecurityLevel,ret);
-}
-
-void jobGetSecurityKey(Communication *output, char function,char address,char job, void * pMem)
-{
-	output->sendAnswerInt(quelle_KNET,function,address,job,SecurityLevel,true);
-}
-
-
-void jobGetCompilationDate(Communication *output, char function,char address,char job, void * pMem)
-{
-char temp[20];
-	strcpy(temp,Compilation_Date);
-	output->sendAnswer(temp,quelle_KNET,function,address,job,true);
-}
-
-void jobGetCompilationTime(Communication *output, char function,char address,char job, void * pMem)
-{
-char temp[20];
-	strcpy(temp,Compilation_Time);
-	output->sendAnswer(temp,quelle_KNET,function,address,job,true);
-}
-
-void jobGetFreeMemory(Communication *output, char function,char address,char job, void * pMem)
-{
-extern int __heap_start, *__brkval;
-int v;
-
-	uint16_t mem = (uint16_t) &v - (__brkval == 0 ? (uint16_t) &__heap_start : (uint16_t) __brkval);
-	output->sendAnswerInt(quelle_KNET,function,address,job,mem,true);
-}
-
-
-
-void jobSetMeasureRate(Communication *output, char function,char address,char job, void * pMem)
+void jobSetMeasureRate(ComReceiver *comRec, char function,char address,char job, void * pMem)
 {
 	uint16_t rate;
 	rate = ((uint16_t *)pMem)[0];
 	if (rate<10)
 	{
-        output->sendAnswer("Rate [100ms] must not smaller than 10",quelle_KNET,function,address,job,false);
+        comRec->sendAnswer("Rate [100ms] must not smaller than 10",function,address,job,false);
 	}
 	else
 	{
 		measureRate_100ms = rate;
-		output->sendPureAnswer(quelle_KNET,function,address,job,true);
+		comRec->sendPureAnswer(function,address,job,true);
 	}
 }
 
-void jobGetMeasureRate(Communication *output, char function,char address,char job, void * pMem)
+void jobGetMeasureRate(ComReceiver *comRec, char function,char address,char job, void * pMem)
 {
-    output->sendAnswerInt(quelle_KNET,function,address,job,measureRate_100ms,true);
+    comRec->sendAnswerInt(function,address,job,measureRate_100ms,true);
 }
 
-void jobSetAverageRate(Communication *output, char function,char address,char job, void * pMem)
+void jobSetAverageRate(ComReceiver *comRec, char function,char address,char job, void * pMem)
 {
 	uint8_t rate;
 	rate = ((uint8_t *)pMem)[0];
@@ -127,6 +98,24 @@ void jobSetAverageRate(Communication *output, char function,char address,char jo
 	{
 	}
 	else
-		output->sendAnswer(fehler_text[NO_ACTIVE_SENSOR],quelle_KNET,function,address,job,false);
+		comRec->sendAnswer(fehler_text[NO_ACTIVE_SENSOR],function,address,job,false);
+}
+
+/* "2019-04-18-06-36-02" */
+// https://stackoverflow.com/questions/5754315/c-convert-char-to-timestamp/5754417#5754417
+// https://stackoverflow.com/questions/1859201/add-seconds-to-a-date
+void gotNewMqttTime()
+{
+  cli();
+  secondsCounter = uint32_t(MqttTime);
+  sei();
+}
+
+void gotHeaterAlarmInfo()
+{
+  if((strcmp(heaterAlarm,"ON")==0) | (strcmp(heaterWater,"ON")==0))
+    heaterCollectionAlarm = true;
+  else
+    heaterCollectionAlarm = false;
 }
 

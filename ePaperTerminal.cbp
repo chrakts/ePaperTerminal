@@ -48,6 +48,9 @@
 			<Add directory="../sensirion" />
 			<Add directory="../dma-atxmega" />
 			<Add directory="../sht2x" />
+			<Add directory="../ComReceiver" />
+			<Add directory="../xmegaClocks" />
+			<Add directory="../Secrets" />
 		</Compiler>
 		<Linker>
 			<Add option="-s" />
@@ -66,10 +69,15 @@
 			<Add after="avr-objcopy --no-change-warnings -j .lock --change-section-lma .lock=0 -O ihex $(TARGET_OUTPUT_FILE) $(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).lock" />
 			<Add after="avr-objcopy --no-change-warnings -j .signature --change-section-lma .signature=0 -O ihex $(TARGET_OUTPUT_FILE) $(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).sig" />
 		</ExtraCommands>
+		<Unit filename="../ComReceiver/ComReceiver.cpp" />
+		<Unit filename="../ComReceiver/ComReceiver.h" />
+		<Unit filename="../ComReceiver/Operators.cpp" />
+		<Unit filename="../ComReceiver/Operators.h" />
+		<Unit filename="../ComReceiver/cmultiStandardCommands.cpp" />
+		<Unit filename="../ComReceiver/cmultiStandardCommands.h" />
+		<Unit filename="../Secrets/secrets.h" />
 		<Unit filename="../communication/CRC_Calc.cpp" />
 		<Unit filename="../communication/CRC_Calc.h" />
-		<Unit filename="../communication/CmultiBusy.cpp" />
-		<Unit filename="../communication/CmultiBusy.h" />
 		<Unit filename="../communication/Communication.cpp" />
 		<Unit filename="../communication/Communication.h" />
 		<Unit filename="../communication/Serial.cpp" />
@@ -98,8 +106,8 @@
 		<Unit filename="../spi/spi_driver.h" />
 		<Unit filename="../twiMaster/twi_master_driver.cpp" />
 		<Unit filename="../twiMaster/twi_master_driver.h" />
-		<Unit filename="ComReceiver.cpp" />
-		<Unit filename="ComReceiver.h" />
+		<Unit filename="../xmegaClocks/xmegaClocks.cpp" />
+		<Unit filename="../xmegaClocks/xmegaClocks.h" />
 		<Unit filename="CommandFunctions.cpp" />
 		<Unit filename="CommandFunctions.h" />
 		<Unit filename="External.h" />
@@ -123,10 +131,7 @@
 		<Unit filename="spiHardware.h" />
 		<Unit filename="uartHardware.h" />
 		<Extensions>
-			<envvars />
-			<code_completion />
 			<lib_finder disable_auto="1" />
-			<debugger />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

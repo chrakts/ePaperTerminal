@@ -26,6 +26,7 @@
 #include "twi_master_driver.h"
 #include "spi_driver.h"
 #include "display.h"
+#include "../ComReceiver/ComReceiver.h"
 
 extern volatile uint8_t UART0_ring_received;
 extern volatile  char UART0_ring_buffer[UART0_RING_BUFFER_SIZE];
@@ -82,6 +83,9 @@ extern char quelle_KNET[3];
 
 class Communication;   // Forward declaration
 extern Communication cmulti;
+class ComReceiver;
+extern ComReceiver cmultiRec;
+
 class SHT2;
 extern SHT2 localClima;
 

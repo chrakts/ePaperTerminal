@@ -13,9 +13,6 @@ const char *Node = "IP";
 
 const char *fehler_text[]={"memory errors","parameter error","unknown job","no transmission","command not allowed","CRC error","no active sensor"};
 
-char Compilation_Date[] = __DATE__;
-char Compilation_Time[] = __TIME__;
-
 char quelle_KNET[3]="E1";
 uint8_t isBroadcast = false;
 
@@ -71,7 +68,8 @@ volatile bool nowUpdateDisplay=false;
 volatile bool nowUpdateClima=false;
 volatile bool isDisplayReady=false;
 
-Communication cmulti(0,Node,5);
+Communication cmulti(0,Node,5,USE_BUSY_0);
+ComReceiver cmultiRec(&cmulti,Node,cnetCommands,NUM_COMMANDS,information,NUM_INFORMATION);
 
 SPI_Master_t spiDisplay;
 

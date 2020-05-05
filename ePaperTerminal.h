@@ -31,7 +31,6 @@
 #include "ComReceiver.h"
 #include "CommandFunctions.h"
 #include "sensirion_protocol.h"
-#include "CmultiBusy.h"
 #include "Communication.h"
 #include "sht2x.h"
 

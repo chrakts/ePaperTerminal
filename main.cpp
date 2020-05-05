@@ -10,17 +10,15 @@
 #include "External.h"
 #include "sht2x.h"
 #include "localeClimate.h"
+#include "xmegaClocks.h"
+
 
 #define COLORED     0
 #define UNCOLORED   1
 
-enum{QUARZ,CLK2M,CLK32M};
 
 #define SYSCLK QUARZ
 #define PLL 2
-
-void init_clock(int sysclk, int pll);
-
 
 void setup()
 {
@@ -35,7 +33,7 @@ void setup()
   AUX2_ON;
   AUX3_ON;
   AUX4_ON;
-  init_clock(SYSCLK, PLL);
+  init_clock(SYSCLK,PLL,false,0);
 /*  for( uint8_t i=0;i<3;i++)
   {
     LEDROT_ON;
@@ -43,9 +41,6 @@ void setup()
     LEDROT_OFF;
     _delay_ms(300);
   }*/
-
-  initReadMonitor();
-  initBusyCounter();
 
   SPI_MasterInit(&spiDisplay,&SPI_DEV,&SPI_PORT,false,SPI_MODE_0_gc,SPI_INTLVL_LO_gc,false,SPI_PRESCALER_DIV128_gc);
   TWI_MasterInit(&twiC_Master, &TWIC, TWI_MASTER_INTLVL_LO_gc, TWI_BAUDSETTING);
@@ -181,8 +176,8 @@ int main()
     }*/
     test = showDisplay();
     measureClimate();
-    comStateMachine(&cmulti);
-    doJob(&cmulti);
+    cmultiRec.comStateMachine();
+    cmultiRec.doJob();
   }
 }
 
@@ -197,67 +192,4 @@ int main()
 ISR(SPIE_INT_vect)
 {
 	SPI_MasterInterruptHandler(&spiDisplay);
-}
-
-
-
-
-void init_clock(int sysclk, int pll)
-{
-	CLK_t *mein_clock;
-	OSC_t *mein_osc;
-	mein_clock = &CLK;
-	mein_osc = &OSC;
-	switch(sysclk)
-	{
-		case QUARZ:
-			mein_osc->XOSCCTRL = OSC_FRQRANGE_12TO16_gc | OSC_XOSCSEL_XTAL_16KCLK_gc;
-//			mein_osc->XOSCCTRL = OSC_FRQRANGE_12TO16_gc | OSC_XOSCPWR_bm | OSC_XOSCSEL_XTAL_16KCLK_gc;
-			mein_osc->CTRL = OSC_XOSCEN_bm | OSC_RC2MEN_bm | OSC_RC32KEN_bm; // schaltet die 32 MHz-Clock ein
-
-			while((mein_osc->STATUS & OSC_XOSCRDY_bm) == 0)			// wartet bis diese stabil
-			;
-			while((mein_osc->STATUS & OSC_RC32KRDY_bm) == 0)		// wartet bis diese stabil
-			;
-
-			if ( (pll>0) & (pll<16) )
-			{
-				mein_osc->PLLCTRL = OSC_PLLSRC_XOSC_gc | pll;
-				mein_osc->CTRL = OSC_PLLEN_bm | OSC_XOSCEN_bm | OSC_RC2MEN_bm | OSC_RC32KEN_bm; // schaltet zusätzlich die PLL ein
-
-				while((mein_osc->STATUS & OSC_PLLRDY_bm) == 0)		// wartet bis diese stabil
-				;
-				CCP = CCP_IOREG_gc;										// geschuetztes Register freigeben
-				mein_clock->CTRL = CLK_SCLKSEL_PLL_gc;					// umschalten auf PLL-Clock
-				mein_osc->CTRL = OSC_PLLEN_bm | OSC_XOSCEN_bm | OSC_RC32KEN_bm;
-			}
-			else
-			{
-				CCP = CCP_IOREG_gc;										// geschuetztes Register freigeben
-				mein_clock->CTRL = CLK_SCLKSEL_XOSC_gc;					// umschalten auf XOSC-Clock
-				mein_osc->CTRL = OSC_XOSCEN_bm | OSC_RC32KEN_bm;
-			}
-		break; // QUARZ
-		case CLK2M:
-			mein_osc->CTRL = OSC_RC2MEN_bm | OSC_RC32KEN_bm; // schaltet die 2 MHz-Clock ein
-			while((mein_osc->STATUS & OSC_RC2MRDY_bm) == 0)  // wartet bis diese stabil
-			;
-			while((mein_osc->STATUS & OSC_RC32KRDY_bm) == 0)  // wartet bis diese stabil
-			;
-			CCP = CCP_IOREG_gc;								// geschuetztes Register freigeben
-			mein_clock->CTRL = CLK_SCLKSEL_RC2M_gc;		// umschalten auf 2 MHz-Clock
-//			CLKSYS_AutoCalibration_Enable(OSC_RC2MCREF_RC32K_gc,false); // OSC_RC32MCREF_bm
-		break;
-		case CLK32M:
-			mein_osc->CTRL = OSC_RC32MEN_bm | OSC_RC2MEN_bm | OSC_RC32KEN_bm; // schaltet die 32 MHz-Clock ein
-			while((mein_osc->STATUS & OSC_RC32MRDY_bm) == 0)  // wartet bis diese stabil
-			;
-			while((mein_osc->STATUS & OSC_RC32KRDY_bm) == 0)  // wartet bis diese stabil
-			;
-			CCP = CCP_IOREG_gc;								// geschuetztes Register freigeben
-			mein_clock->CTRL = CLK_SCLKSEL_RC32M_gc;		// umschalten auf 32 MHz-Clock
-			mein_osc->CTRL = OSC_RC32MEN_bm | OSC_RC32KEN_bm;		// abschalten der 2 MHz-Clock
-//			CLKSYS_AutoCalibration_Enable(OSC_RC32MCREF_RC32K_gc,false); // OSC_RC32MCREF_bm
-		break;
-	}
 }
