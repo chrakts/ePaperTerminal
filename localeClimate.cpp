@@ -1,6 +1,6 @@
 #include "localeClimate.h"
 
-uint8_t measureClimate()
+void measureClimate()
 {
 static uint8_t statusClimate=CLIMATE_SLEEP;
 static int16_t raw;
@@ -10,7 +10,7 @@ char wert[10];
     switch(statusClimate)
     {
       case CLIMATE_SLEEP:
-        LEDROT_ON;
+        //LEDROT_ON;
         localClima.startMeasurementPoll(SHT2::etSHT2xMeasureType::TEMP);
         statusClimate++;
       break;
@@ -50,7 +50,7 @@ char wert[10];
         statusClimate++;
       break;
       case CLIMATE_CALC_D:
-        float k,dew_point ;
+        float k;
         k = (log10(fInternalHumidity)-2)/0.4343 + (17.62*fInternalTemperature)/(243.12+fInternalTemperature);
         fInternalDewPoint = 243.12*k/(17.62-k);
         statusClimate++;
