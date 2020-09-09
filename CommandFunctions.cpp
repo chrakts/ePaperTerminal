@@ -19,8 +19,7 @@ COMMAND cnetCommands[NUM_COMMANDS] =
     {'C','d',CUSTOMER,NOPARAMETER,0,jobGetCDewPointSensor},
     {'C','a',CUSTOMER,NOPARAMETER,0,jobGetCAbsHumiditySensor},
     {'M','r',PRODUCTION,NOPARAMETER,16,jobGetMeasureRate},
-    {'M','R',PRODUCTION,UINT_16,16,jobSetMeasureRate},
-    {'C','d',CUSTOMER,FLOAT,1,jobGotExternalTemperature}
+    {'M','R',PRODUCTION,UINT_16,16,jobSetMeasureRate}
 };
 
 INFORMATION information[NUM_INFORMATION]=
@@ -37,37 +36,22 @@ INFORMATION information[NUM_INFORMATION]=
 
 void jobGetCTemperatureSensor(ComReceiver *comRec, char function,char address,char job, void * pMem)
 {
-	comRec->sendAnswerDouble(function,address,job,(double)fTemperatur,true);
+	comRec->sendAnswerDouble(function,address,job,(double)fInternalTemperature,true);
 }
 
 void jobGetCHumiditySensor(ComReceiver *comRec, char function,char address,char job, void * pMem)
 {
-	comRec->sendAnswerDouble(function,address,job,(double)fHumidity,true);
+	comRec->sendAnswerDouble(function,address,job,(double)fInternalHumidity,true);
 }
 
 void jobGetCAbsHumiditySensor(ComReceiver *comRec, char function,char address,char job, void * pMem)
 {
-	comRec->sendAnswerDouble(function,address,job,(double)fAbsHumitdity,true);
+	comRec->sendAnswerDouble(function,address,job,(double)fInternalAbsHumitdity,true);
 }
 
 void jobGetCDewPointSensor(ComReceiver *comRec, char function,char address,char job, void * pMem)
 {
-	comRec->sendAnswerDouble(function,address,job,(double)fDewPoint,true);
-}
-
-void jobGotExternalTemperature(ComReceiver *comRec, char function,char address,char job, void * pMem)
-{
-// #1aD BR C1 S C1 t F17.409996<0355
-char answer[30];
-	if( isBroadcast==true)
-	{
-		double *pointer;
-    pointer = (double*) pMem;
-    fExternalTemperature = pointer[0];
-//    comRec->sendAnswerDouble(function,address,job,(double)455.345,true);
-    sprintf(answer,"NT:%f",(double)fExternalTemperature);
-    comRec->sendAnswer(answer,function,address,job,true);
-	}
+	comRec->sendAnswerDouble(function,address,job,(double)fInternalDewPoint,true);
 }
 
 void jobSetMeasureRate(ComReceiver *comRec, char function,char address,char job, void * pMem)

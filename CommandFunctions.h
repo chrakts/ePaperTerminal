@@ -11,7 +11,7 @@
 
 #include "ePaperTerminal.h"
 
-#define NUM_COMMANDS 10+7
+#define NUM_COMMANDS 10+6
 #define NUM_INFORMATION 8
 
 extern COMMAND cnetCommands[];
@@ -31,7 +31,6 @@ void jobGetMeasureRate(ComReceiver *comRec, char function,char address,char job,
 void jobSetMeasureRate(ComReceiver *comRec, char function,char address,char job, void * pMem);
 void jobGetAverageRate(ComReceiver *comRec, char function,char address,char job, void * pMem);
 void jobSetAverageRate(ComReceiver *comRec, char function,char address,char job, void * pMem);
-void jobGotExternalTemperature(ComReceiver *comRec, char function,char address,char job, void * pMem);
 
 void gotNewMqttTime();
 void gotHeaterAlarmInfo();
