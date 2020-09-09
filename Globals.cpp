@@ -10,33 +10,37 @@
 
 const char *Node = "IP";
 
+const char RFM69Node    = 'T';
+const char RFM69Network = '1';
+
+const char RFM69Key[16] = {RFM69KEY};
 
 const char *fehler_text[]={"memory errors","parameter error","unknown job","no transmission","command not allowed","CRC error","no active sensor"};
 
 char quelle_KNET[3]="E1";
-uint8_t isBroadcast = false;
 
-
-volatile TIMER MyTimers[MYTIMER_NUM]= {	{TM_START,RESTART_YES,50,0,nextSensorStatus},
+volatile TIMER MyTimers[MYTIMER_NUM]= {	{TM_STOP,RESTART_NO,5,0,NULL},
+                                        {TM_START,RESTART_YES,50,0,nextSensorStatus},
                                         {TM_STOP,RESTART_YES,REPORT_BETWEEN_SENSORS,0,nextReportStatus},
                                         {TM_START,RESTART_YES,100,0,sekundenTimer},
                                         {TM_STOP,RESTART_NO,100,0,NULL},		// Timeout-Timer
                                         {TM_START,RESTART_YES,6000,0,updateDisplay},		  // Update-Timer
                                         {TM_START,RESTART_NO,20,0,displayReady},		  // Ready-Display-Timer
-                                        {TM_START,RESTART_YES,1000,0,updateClimate}		  // Local-Clima-Timer
+                                        {TM_START,RESTART_YES,4000,0,updateClimate}		  // Local-Clima-Timer
 };
 
 
 
-float fTemperatur=-999,fHumidity=-999,fDewPoint=-999,fAbsHumitdity=-999;
+//float fTemperatur=-999,fHumidity=-999,fDewPoint=-999,fAbsHumitdity=-999;
 
 double fExternalTemperature = -99.0;
 double fExternalHumidity    = -99.0;
 double fExternalPressure    = -99.0;
 double fExternalDewPoint    = -99.0;
-double fInternalTemperature    = -99.0;
+double fInternalTemperature = -99.0;
 double fInternalHumidity    = -99.0;
 double fInternalDewPoint    = -99.0;
+double fInternalAbsHumitdity= -99.0;
 char   heaterAlarm[5]="non";
 char   heaterWater[5]="non";
 bool heaterCollectionAlarm=false;
@@ -68,9 +72,23 @@ volatile bool nowUpdateDisplay=false;
 volatile bool nowUpdateClima=false;
 volatile bool isDisplayReady=false;
 
+#ifdef USE_FUNK
+SPI_Master_t spiRFM69;
+RFM69 myRFM(&MyTimers[TIMER_RFM69],&spiRFM69,true);
+#endif // USE_FUNK
+
+// Wrapper, um eine Klassenfunktion für den ComReceiver nutzen zu können
+void sendRFMRelay(char *test)
+{
+  myRFM.sendRelay(test);
+}
+
+
+
 Communication cmulti(0,Node,5,USE_BUSY_0);
-ComReceiver cmultiRec(&cmulti,Node,cnetCommands,NUM_COMMANDS,information,NUM_INFORMATION);
+ComReceiver cmultiRec( &cmulti,Node,cnetCommands,NUM_COMMANDS,information,NUM_INFORMATION,"R1R2R3",sendRFMRelay );
 
 SPI_Master_t spiDisplay;
+
 
 SHT2 localClima(&twiC_Master,0x40);

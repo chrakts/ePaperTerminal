@@ -34,9 +34,10 @@ extern volatile uint8_t UART1_ring_received;
 extern volatile  char UART1_ring_buffer[UART1_RING_BUFFER_SIZE];
 
 extern char const *Node;
-extern uint8_t isBroadcast;
+extern const char RFM69Node;
+extern const char RFM69Network;
+extern const char RFM69Key[];
 
-extern float fTemperatur,fHumidity,fDewPoint,fAbsHumitdity;
 extern double dPressure , dSealevel ;
 extern uint16_t uLicht;
 
@@ -47,6 +48,7 @@ extern double fExternalDewPoint;
 extern double fInternalTemperature;
 extern double fInternalHumidity;
 extern double fInternalDewPoint;
+extern double fInternalAbsHumitdity;
 extern double MqttTime;
 extern char   heaterAlarm[5];
 extern char   heaterWater[5];
@@ -91,6 +93,12 @@ extern SHT2 localClima;
 
 typedef struct SPI_Master SPI_Master_t;
 extern SPI_Master_t spiDisplay;
+
+#ifdef USE_FUNK
+extern SPI_Master_t spiRFM69;
+class RFM69;
+extern RFM69 myRFM;
+#endif // USE_FUNK
 
 extern PICTURECOMP email;
 extern PICTURECOMP heizung;

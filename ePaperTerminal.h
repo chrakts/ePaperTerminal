@@ -33,6 +33,9 @@
 #include "sensirion_protocol.h"
 #include "Communication.h"
 #include "sht2x.h"
-
+#include "secrets.h"
+#ifdef USE_FUNK
+  #include "RFM69.h"
+#endif // USE_FUNK
 
 #endif /* EPAPERTERMINAL_H_ */

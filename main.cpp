@@ -34,17 +34,13 @@ void setup()
   AUX3_ON;
   AUX4_ON;
   init_clock(SYSCLK,PLL,false,0);
-/*  for( uint8_t i=0;i<3;i++)
-  {
-    LEDROT_ON;
-    _delay_ms(300);
-    LEDROT_OFF;
-    _delay_ms(300);
-  }*/
 
   SPI_MasterInit(&spiDisplay,&SPI_DEV,&SPI_PORT,false,SPI_MODE_0_gc,SPI_INTLVL_LO_gc,false,SPI_PRESCALER_DIV128_gc);
-  TWI_MasterInit(&twiC_Master, &TWIC, TWI_MASTER_INTLVL_LO_gc, TWI_BAUDSETTING);
 
+  TWI_MasterInit(&twiC_Master, &TWIC, TWI_MASTER_INTLVL_LO_gc, TWI_BAUDSETTING);
+#ifdef USE_FUNK
+  SPI_MasterInit(&spiRFM69,&(SPID),&(PORTD),false,SPI_MODE_0_gc,SPI_INTLVL_LO_gc,false,SPI_PRESCALER_DIV128_gc);
+#endif // USE_FUNK
 	PMIC_CTRL = PMIC_LOLVLEX_bm | PMIC_HILVLEN_bm | PMIC_MEDLVLEN_bm;
   sei();
   init_mytimer();
@@ -80,6 +76,12 @@ void setup()
   fInternalHumidity = localClima.CalcRH(humidity);
 
   initDisplay(&spiDisplay);//#################################################### muss wieder rein
+
+#ifdef USE_FUNK
+  myRFM.initialize(RF69_868MHZ,RFM69Node,RFM69Network);
+  myRFM.encrypt(RFM69Key);
+  myRFM.readAllRegsCompact();
+#endif // USE_FUNK
 
   //SHT2_SoftReset();
 /*
@@ -155,11 +157,11 @@ void setup()
 
 int main()
 {
+
   setup();
   // put your main code here, to run repeatedly:
   nowUpdateDisplay = true;
   cmulti.sendInfo("Epaper will shown","BR");
-  uint8_t test;
   uint32_t bremse=0;
   while(1)
   {
@@ -174,10 +176,56 @@ int main()
       if(statusDisplay==DISPLAY_CLEAR)
         cmulti.sendInfo("Epaper update clear","BR");
     }*/
-    test = showDisplay();
+    showDisplay();
     measureClimate();
     cmultiRec.comStateMachine();
     cmultiRec.doJob();
+    if(myRFM.isDataFromRelayAvailable())
+    {
+      LEDROT_ON;
+      myRFM.processRelay();
+    }
+    else
+    {
+      LEDROT_OFF;
+      if (myRFM.receiveDone())
+      {
+        LEDROT_ON;
+        //debug.pformat("[%d]-[%d]-[RX_RSSI: %d]:",myRFM.SENDERID,myRFM.DATALEN,myRFM.RSSI);
+        //debug.print((char *)myRFM.DATA);
+        //cmulti.broadcastUInt8(myRFM.SENDERID,'x','x','x');
+
+        if (myRFM.ACKRequested())
+        {
+          myRFM.sendACK();
+          //debug.print(" - ACK sent\n");
+        }
+        cmulti.broadcastInt16(myRFM.RSSI,'R','S','I');
+        //"BRL1SJF1TKaffee"
+        char target[3],source[3];
+        char job,function,address,dataType;
+        target[0]=((char *)myRFM.DATA)[0];
+        target[1]=((char *)myRFM.DATA)[1];
+        target[2]=0;
+        source[0]=((char *)myRFM.DATA)[2];
+        source[1]=((char *)myRFM.DATA)[3];
+        source[2]=0;
+        function = ((char *)myRFM.DATA)[5];
+        address = ((char *)myRFM.DATA)[6];
+        job = ((char *)myRFM.DATA)[7];
+        dataType = ((char *)myRFM.DATA)[8];
+        cmulti.setAlternativeNode(source);
+        cmulti.sendStandard(&(((char *)myRFM.DATA)[9]),target,function,address,job,dataType);
+        cmulti.resetNode();
+        LEDROT_OFF;
+      }
+
+    }
+    if(myRFM.getDebugFlag()>0)
+    {
+      cmulti.broadcastUInt8(myRFM.getDebugFlag(),'F','d','s');
+      myRFM.setDebugFlag(0);
+    }
   }
 }
 
