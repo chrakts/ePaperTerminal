@@ -6,7 +6,7 @@
 		<Option pch_mode="2" />
 		<Option compiler="avr-gcc" />
 		<Build>
-			<Target title="Release">
+			<Target title="Standard">
 				<Option output="bin/Release/ePaperTerminal.elf" prefix_auto="1" extension_auto="0" />
 				<Option working_dir="" />
 				<Option object_output="obj/Release/" />
@@ -16,6 +16,26 @@
 					<Add option="-Os" />
 					<Add option="-Wall" />
 					<Add option="-std=c++14" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add library="libm" />
+					<Add library="libprintf_flt" />
+				</Linker>
+			</Target>
+			<Target title="mit Funk">
+				<Option output="bin/Release/ePaperTerminal.elf" prefix_auto="1" extension_auto="0" />
+				<Option working_dir="" />
+				<Option object_output="obj/Release/" />
+				<Option type="5" />
+				<Option compiler="avr-gcc" />
+				<Compiler>
+					<Add option="-Os" />
+					<Add option="-Wall" />
+					<Add option="-std=c++14" />
+					<Add option="-DUSE_FUNK" />
+					<Add option="-Datxmega" />
+					<Add directory="../RFM69-atxmega" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -75,6 +95,15 @@
 		<Unit filename="../ComReceiver/Operators.h" />
 		<Unit filename="../ComReceiver/cmultiStandardCommands.cpp" />
 		<Unit filename="../ComReceiver/cmultiStandardCommands.h" />
+		<Unit filename="../RFM69-atxmega/RFM69.cpp">
+			<Option target="mit Funk" />
+		</Unit>
+		<Unit filename="../RFM69-atxmega/RFM69.h">
+			<Option target="mit Funk" />
+		</Unit>
+		<Unit filename="../RFM69-atxmega/RFM69registers.h">
+			<Option target="mit Funk" />
+		</Unit>
 		<Unit filename="../Secrets/secrets.h" />
 		<Unit filename="../communication/CRC_Calc.cpp" />
 		<Unit filename="../communication/CRC_Calc.h" />
@@ -98,8 +127,6 @@
 		<Unit filename="../e-paper42/grotesk24x48.cpp" />
 		<Unit filename="../sht2x/sht2x.cpp" />
 		<Unit filename="../sht2x/sht2x.h" />
-		<Unit filename="../spi/Operators.cpp" />
-		<Unit filename="../spi/Operators.h" />
 		<Unit filename="../spi/SPI.cpp" />
 		<Unit filename="../spi/SPI.h" />
 		<Unit filename="../spi/spi_driver.cpp" />
@@ -128,6 +155,9 @@
 		</Unit>
 		<Unit filename="myconstants.h" />
 		<Unit filename="pictures/oil-temperature.cpp" />
+		<Unit filename="rfm69Hardware.h">
+			<Option target="mit Funk" />
+		</Unit>
 		<Unit filename="spiHardware.h" />
 		<Unit filename="uartHardware.h" />
 		<Extensions>
