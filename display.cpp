@@ -90,6 +90,8 @@ char infoString2[30];
         strftime(infoString2,20,"%d.%m.%y", &info);
         sprintf(infoString,"%s, %s",Wochentage[infoString[0]-48],infoString2);
         paint.DrawStringAt(10, 5, infoString, &Font24, COLORED);
+        if(windowOpen>0)
+          paint.DrawPicture(&picWindowOpen,170,35);
         if(heaterCollectionAlarm==true)
           paint.DrawPicture(&heizung,224,35);
         if(gotEmailNumber>0)

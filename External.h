@@ -55,6 +55,7 @@ extern char   heaterWater[5];
 extern bool heaterCollectionAlarm;
 extern uint32_t secondsCounter;
 extern uint8_t gotEmailNumber;
+extern uint8_t windowOpen;
 
 extern char Compilation_Date[];
 extern char Compilation_Time[];
@@ -103,6 +104,7 @@ extern RFM69 myRFM;
 extern PICTURECOMP email;
 extern PICTURECOMP heizung;
 extern PICTURECOMP telegram;
+extern PICTURECOMP picWindowOpen;
 
 
 extern CRC_Calc crcGlobal;

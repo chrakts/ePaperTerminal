@@ -12,7 +12,7 @@
 #include "ePaperTerminal.h"
 
 #define NUM_COMMANDS 10+6
-#define NUM_INFORMATION 8
+#define NUM_INFORMATION 9
 
 extern COMMAND cnetCommands[];
 extern INFORMATION information[];

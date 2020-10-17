@@ -31,7 +31,8 @@ INFORMATION information[NUM_INFORMATION]=
   {"DT",'e','c','n',UINT_8,1,(void*)&gotEmailNumber,NULL},
   {"DT",'t','1','s',FLOAT,1,(void*)&MqttTime,gotNewMqttTime},
   {"H1",'H','1','a',STRING,5,(void*)&heaterAlarm,gotHeaterAlarmInfo},
-  {"H1",'H','1','w',STRING,5,(void*)&heaterWater,gotHeaterAlarmInfo}
+  {"H1",'H','1','w',STRING,5,(void*)&heaterWater,gotHeaterAlarmInfo},
+  {"DT",'F','K','o',UINT_8,1,(void*)&windowOpen,NULL}
 };
 
 void jobGetCTemperatureSensor(ComReceiver *comRec, char function,char address,char job, void * pMem)

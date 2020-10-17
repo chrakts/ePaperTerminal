@@ -47,6 +47,7 @@ bool heaterCollectionAlarm=false;
 double   MqttTime= 1111111111;
 uint32_t secondsCounter = 1545264000;
 uint8_t gotEmailNumber = 0;
+uint8_t windowOpen = 0;
 
 volatile uint8_t statusSensoren = KLIMASENSOR;
 volatile uint8_t statusReport = TEMPREPORT;
@@ -75,18 +76,25 @@ volatile bool isDisplayReady=false;
 #ifdef USE_FUNK
 SPI_Master_t spiRFM69;
 RFM69 myRFM(&MyTimers[TIMER_RFM69],&spiRFM69,true);
-#endif // USE_FUNK
-
 // Wrapper, um eine Klassenfunktion für den ComReceiver nutzen zu können
+
 void sendRFMRelay(char *test)
 {
   myRFM.sendRelay(test);
 }
 
+#endif // USE_FUNK
+
+
 
 
 Communication cmulti(0,Node,5,USE_BUSY_0);
+
+#ifdef USE_FUNK
 ComReceiver cmultiRec( &cmulti,Node,cnetCommands,NUM_COMMANDS,information,NUM_INFORMATION,"R1R2R3",sendRFMRelay );
+#else
+ComReceiver cmultiRec( &cmulti,Node,cnetCommands,NUM_COMMANDS,information,NUM_INFORMATION,"",NULL );
+#endif // USE_FUNK
 
 SPI_Master_t spiDisplay;
 
