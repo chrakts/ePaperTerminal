@@ -83,76 +83,6 @@ void setup()
   myRFM.readAllRegsCompact();
 #endif // USE_FUNK
 
-  //SHT2_SoftReset();
-/*
-  Epd epd;
-
-  if (epd.Init(&spiDisplay) != 0) {
-    cmulti.print("e-Paper init failed\n");
-    return;
-  }
-  cmulti.print("EPD init\n");
-
-  epd.ClearFrame();
-  cmulti.print("EPD clear\n");
-  unsigned char image[7500];
-  Paint paint(image, 400, 150);    //width should be the multiple of 8
-  cmulti.print("EPD paint image \n");
-  paint.Clear(UNCOLORED);
-  cmulti.print("Display Cleared \n");
-  paint.DrawStringAt(0, 0, "e-Paper Demo", &Font24, COLORED);
-  cmulti.print("EPD partial\n");
-
-//  paint.Clear(COLORED);
-  paint.DrawStringAt(48, 48, "Hello world", &Font24, COLORED);
-//  epd.SetPartialWindow(paint.GetImage(), 0, 64, paint.GetWidth(), paint.GetHeight());
-
-//  paint.SetWidth(64);
-//  paint.SetHeight(64);
-
-//  paint.Clear(UNCOLORED);
-  paint.DrawRectangle(0, 299, 100, 200, COLORED);
-  paint.DrawLine(50, 50, 90, 100, COLORED);
-  paint.DrawLine(40, 0, 0, 50, COLORED);
-//  epd.SetPartialWindow(paint.GetImage(), 72, 120, paint.GetWidth(), paint.GetHeight());
-  cmulti.print("EPD partial2\n");
-
-//  paint.SetWidth(100);
-//  paint.SetHeight(100);
-
-//  paint.Clear(UNCOLORED);
-//  int i;
-//  paint.DrawFilledCircle(200, 150, 34, COLORED);
-//  paint.DrawFilledCircle(220, 170, 30, COLORED);
-//  epd.SetPartialWindow(paint.GetImage(), 200, 120, paint.GetWidth(), paint.GetHeight());
-
-//  paint.Clear(UNCOLORED);
-//  paint.DrawFilledRectangle(0, 0, 40, 50, COLORED);
-//  epd.SetPartialWindow(paint.GetImage(), 72, 200, paint.GetWidth(), paint.GetHeight());
-
-//  paint.Clear(UNCOLORED);
-//  paint.DrawFilledCircle(32, 32, 30, COLORED);
-//  epd.SetPartialWindow(paint.GetImage(), 400, 300, paint.GetWidth(), paint.GetHeight());
-  cmulti.print("EPD partial3\n");
-
-  // This displays the data from the SRAM in e-Paper module
-  epd.SetPartialWindow(paint.GetImage(), 0, 0, paint.GetWidth(), paint.GetHeight());
-  //epd.DisplayFrame();
-  cmulti.print("Display Frame\n");
-  epd.SetPartialWindow(paint.GetImage(), 0, 150, paint.GetWidth(), paint.GetHeight());
-  epd.DisplayFrame();
-  cmulti.print("Display Frame2\n");
-
-  // This displays an image
-  //paint.Clear(UNCOLORED);
-  //paint.DrawPicture(imageButterfly,IMAGEBUTTERFLY_SIZE);
-  //cmulti.print("Transfer Picture\n");
-  //epd.SetPartialWindow(paint.GetImage(), 0, 0, paint.GetWidth(), paint.GetHeight());
-  //epd.DisplayFrame();
-  //cmulti.print("Display Picture\n");
-  // Deep sleep
-  epd.Sleep();*/
-
 }
 
 int main()
@@ -180,6 +110,9 @@ int main()
     measureClimate();
     cmultiRec.comStateMachine();
     cmultiRec.doJob();
+
+#ifdef USE_FUNK
+
     if(myRFM.isDataFromRelayAvailable())
     {
       LEDROT_ON;
@@ -226,6 +159,8 @@ int main()
       cmulti.broadcastUInt8(myRFM.getDebugFlag(),'F','d','s');
       myRFM.setDebugFlag(0);
     }
+#endif // USE_FUNK
+
   }
 }
 

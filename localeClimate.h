@@ -5,7 +5,11 @@
 #include "sht2x.h"
 #include "Communication.h"
 #include "ledHardware.h"
-#include "RFM69.h"
+
+#ifdef USE_FUNK
+  #include "RFM69.h"
+#endif // USE_FUNK
+
 
 void measureClimate();
 
