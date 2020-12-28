@@ -13,5 +13,4 @@
 #define CS_PIN          PIN4_bm
 #define BUSY_PIN        PIN2_bm
 
-
 #endif // EPAPER42HARDWARE_H_INCLUDED

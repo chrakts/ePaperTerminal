@@ -13,10 +13,10 @@
 				<Option type="5" />
 				<Option compiler="avr-gcc" />
 				<Compiler>
-					<Add option="-Os" />
-					<Add option="-Wall" />
 					<Add option="-std=c++14" />
-				</Compiler>
+					<Add option="-DT_KAL_P0=0" />
+					<Add option="-DT_KAL_P1=0" />
+        </Compiler>
 				<Linker>
 					<Add option="-s" />
 					<Add library="libm" />
@@ -30,11 +30,13 @@
 				<Option type="5" />
 				<Option compiler="avr-gcc" />
 				<Compiler>
-					<Add option="-Os" />
-					<Add option="-Wall" />
 					<Add option="-std=c++14" />
 					<Add option="-DUSE_FUNK" />
 					<Add option="-Datxmega" />
+					<Add option="-DT_KAL_P0=-2.7065" />
+					<Add option="-DT_KAL_P1=0" />
+					<Add option="-DDISPLAY_FLIP" />
+					<Add option="-DIF_INVERT_COLOR" />
 					<Add directory="../RFM69-atxmega" />
 				</Compiler>
 				<Linker>
@@ -48,8 +50,9 @@
 			</Environment>
 		</Build>
 		<Compiler>
-			<Add option="-Os" />
 			<Add option="-std=c++14" />
+			<Add option="-Os" />
+			<Add option="-Wall" />
 			<Add option="-mmcu=atxmega256a3u" />
 			<Add option="-c -fpermissive" />
 			<Add option="-Wno-enum-compare" />
