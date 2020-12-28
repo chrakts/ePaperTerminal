@@ -82,7 +82,7 @@ extern uint16_t measureRate_100ms;
 extern TWI_MasterDriver_t twiC_Master;    /*!< TWI master module. */
 extern TWI_MasterDriver_t twiE_Master;    /*!< TWI master module. */
 
-extern char quelle_KNET[3];
+//extern char quelle_KNET[3];
 
 class Communication;   // Forward declaration
 extern Communication cmulti;

@@ -17,7 +17,7 @@ const char RFM69Key[16] = {RFM69KEY};
 
 const char *fehler_text[]={"memory errors","parameter error","unknown job","no transmission","command not allowed","CRC error","no active sensor"};
 
-char quelle_KNET[3]="E1";
+//char quelle_KNET[3]="E1";
 
 volatile TIMER MyTimers[MYTIMER_NUM]= {	{TM_STOP,RESTART_NO,5,0,NULL},
                                         {TM_START,RESTART_YES,50,0,nextSensorStatus},
