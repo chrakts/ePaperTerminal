@@ -80,7 +80,7 @@ void setup()
 #ifdef USE_FUNK
   myRFM.initialize(RF69_868MHZ,RFM69Node,RFM69Network);
   myRFM.encrypt(RFM69Key);
-  myRFM.readAllRegsCompact();
+  //myRFM.readAllRegsCompact();
 #endif // USE_FUNK
 
 }
