@@ -16,7 +16,7 @@
 					<Add option="-std=c++14" />
 					<Add option="-DT_KAL_P0=0" />
 					<Add option="-DT_KAL_P1=0" />
-        </Compiler>
+				</Compiler>
 				<Linker>
 					<Add option="-s" />
 					<Add library="libm" />
@@ -36,7 +36,6 @@
 					<Add option="-DT_KAL_P0=-2.7065" />
 					<Add option="-DT_KAL_P1=0" />
 					<Add option="-DDISPLAY_FLIP" />
-					<Add option="-DIF_INVERT_COLOR" />
 					<Add directory="../RFM69-atxmega" />
 				</Compiler>
 				<Linker>
