@@ -8,7 +8,7 @@
 #include "ePaperTerminal.h"
 #include "ledHardware.h"
 
-extern volatile uint8_t do_sleep;
+extern volatile uint8_t do_sleep ;
 
 void init_mytimer(void)
 {
